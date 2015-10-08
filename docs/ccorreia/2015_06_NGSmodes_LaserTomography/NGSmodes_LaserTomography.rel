@@ -1,0 +1,230 @@
+;; RefTeX parse info file
+;; File: /Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex
+;; User: ccorreia (Carlos Correia)
+
+(set reftex-docstruct-symbol '(
+
+
+(xr nil "\\\\\\\\\\\\")
+
+(index-tags)
+
+(is-multi nil)
+
+(bibview-cache)
+
+(master-dir . "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/")
+
+(label-numbers)
+
+(bof "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex")
+
+(toc "toc" "    1 Fundamentals of the LQG control approach " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 2 "1" "\\section{Fundamentals of the LQG control approach }" 14754)
+
+("sec:reviewLQG" "s" "The linear-quadratic (LQ) and linear-quadratic-Gaussian (LQG) approaches are two standard design too" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:complete_discrete_state_space_system" "e" "\\left\\{ \\begin{array}{cl} x_{k+1} & =\\mathcal{A}_{\\mathrm{d}}x_{" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+(toc "toc" "      1.1 Optimality criteria " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 3 "1.1" "\\subsection{Optimality criteria }" 19043)
+
+("eq:Cont_criterion" "e" "J^{\\mathrm{c}}\\left( u\\right) \\triangleq\\lim_{\\tau\\rightarrow+\\infty}\\frac{1} {\\tau}\\int_{0}^" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:Cont_criterion_stepbystep" "e" "J^\\mathrm{c}\\left(u\\right)_k \\triangleq \\frac{1}{{T_s}} \\int_{k{T_s}}^{(k+1){T_s}} \\left\\|\\phi^{\\res" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:Jc_average_Jck" "e" "J^\\mathrm{c}(u) = \\lim_{M\\rightarrow+\\infty}\\frac{1}{M}\\sum_{k=0}^M J^\\mathrm{c}(u)_k. " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+(toc "toc" "      1.2 Step-by-step solution " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 3 "1.2" "\\subsection{Step-by-step solution }" 22623)
+
+("eq:Jd_general_LQG" "e" "J^\\mathrm{d}\\left( u\\right) =\\lim_{M\\rightarrow+\\infty}\\frac{1}{M}\\sum_{k=0}^{M-1}\\left( x" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("lq_wheigh_matrices" "e" "P\\triangleq\\left( \\begin{array} [c]{cc}% Q & S" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:u_k_optimal" "e" "u_k = -\\mathcal{K}^{\\text{opt}}x_k , " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:u_k_optimal_est" "e" "u_k = -\\mathcal{K}^{\\text{opt}}\\widehat{x}_{k|k} , " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:kalman_state_prediction" "e" "\\widehat{x}_{k|k-1} = \\mathcal{A}_\\mathrm{d}\\widehat{x}_{k-1|k-2}+\\mathcal{B}_\\mathrm{d} " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:KalmanGain" "e" "\\mathcal{L}^{\\text{opt}} = \\mathcal{A}_\\mathrm{d} \\Sigma\\mathcal{C}_\\mathrm{d}^\\T \\left(\\mathcal{C}_" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:ARE" "e" "\\Sigma = \\mathcal{A}_\\mathrm{d} \\Sigma\\mathcal{A}_\\mathrm{d}^\\T + \\Sigma_v - \\mathcal{A}_\\mathrm{d} " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+(toc "toc" "    2 LQG controller for AO systems with infinitely fast mirrors" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 2 "2" "\\section{LQG controller for AO systems with infinitely fast
+  mirrors}" 28446)
+
+("sec:infinetely_fast_dm" "s" "\\subsection{Solution in the \\emph{complete-state information} case} When the DM's transient response" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+(toc "toc" "      2.1 Solution in the \\emph{complete-state information} case" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 3 "2.1" "\\subsection{Solution in the \\emph{complete-state information} case}" 28564)
+
+("eq:phicorr_from_u" "e" "\\phi ^{\\cor}\\left( t\\right) =\\N u_{k},~ ~ ~ \\forall~~ k{T_s}\\leq t<\\left( k+1\\right) {T_s} . " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:Disc_criterion" "e" "J_\\text{ifm}^{\\mathrm{d}}\\left(u\\right) & =\\lim_{M\\rightarrow+\\infty}\\frac{1}{M}\\sum_{k=0}^{M-1}\\Ver" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:insurmontableerror" "e" "J^\\mathrm{c}(u) = J^\\mathrm{d}_\\text{ifm}(u) + \\delta J({T_s}) , " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:unsurmountable_error" "e" "\\delta J\\left( T_s\\right) =\\lim_{M\\rightarrow+\\infty}\\frac{1}{M}% \\sum_{k=0}^{M-1}\\left( \\frac" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:unsurmountable_error" "e" "\\delta J\\left( T_s\\right) = \\int_{-\\infty}^\\infty \\left(1 - |sinc(f T_s)|^2\\right) PSD_{TT}(f) " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("fig:insurmontable_error" "f" " " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" 31668)
+
+("eq:CSIcontrol_from_simple_projection" "e" "u_k = \\Theta \\bar\\phi_{k+1} = \\left(\\N^{\\T}\\N\\right)^{-1}\\N^{\\T}\\bar\\phi_{k+1}^\\tur, " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+(toc "toc" "      2.2 Solution in the \\emph{incomplete state information} case" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 3 "2.2" "\\subsection{Solution in the \\emph{incomplete state
+            information} case}" 33319)
+
+("eq:pseudomeasurement_dyn" "e" "y_{k} = \\D \\bar{\\phi }_{k}^{\\tur}-\\D\\N u_{k-1}+w_{k} " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq10" "e" "u_{k}=\\Theta\\widehat{\\bar{% \\phi}}_{k+1\\mid \\mathcal{Y}_k}^{\\tur}, " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("ss_system_nodynamics" "e" "\\left( \\begin{array} [c]{c}% \\bar\\phi_{k+2}^{\\tur} " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:pseudomeasurement_nodyn" "e" "y_k = \\D \\left( \\begin{array} [c]{ccccc}% 0 & \\I & -\\N " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:optimalcontrols_nodyn" "e" "u_k = \\Theta \\left( \\begin{array} [c]{ccccc}% \\I & 0 & 0 " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:Disc_criterion_ISI" "e" "u_{k}% " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+(toc "toc" "      2.3 Extension to vibration suppression" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 3 "2.3" "\\subsection{Extension to vibration suppression}" 39725)
+
+("eq:2nd_order_diff_eq" "e" "\\ddot\\theta + 2\\xi \\omega_0^2 \\dot \\theta + \\omega_0^2 \\theta = \\nu " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:TF_disc_vib" "e" "H(z) = \\frac{\\varepsilon_k}{1-2e^{-\\xi \\omega_0^2T_s} cos\\left(\\omega_0 T_s \\sqrt{1-\\xi^2}\\right)z^{" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:ar2_vibration" "e" "\\theta_{k+1} & = \\alpha_1 \\theta_{k} + \\alpha_2 \\theta_{k-1} + \\varepsilon_k " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:ss_cont_vibration" "e" "\\left\\{ \\begin{array}{cl} x^{\\vib}_{k+1} & ={A}_v x^{\\vib}_{k}+{B}_v u^\\vib _{k}+\\Gamma_\\vib \\vareps" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("ss_ar2_vibration_w_delay" "e" "\\underbrace{\\left( \\begin{array} [c]{c}% \\theta_{k+2} " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("lisa_vib_model" "e" "\\underbrace{\\left( \\begin{array} [c]{c}% \\theta^r_{k+1} " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+(toc "toc" "        2.3.1 Equivalence vibration models" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 4 "2.3.1" "\\subsubsection{Equivalence vibration models}" 43802)
+
+("sec:equiv-vibration-models" "s" "Lisa's model is equivalent to a second order with variable damping. Therefore, it needs be identifie" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+(toc "toc" "    3 NGS modes in laser-tomography AO: LTAO and MCAO" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 2 "3" "\\section{NGS modes in laser-tomography AO: LTAO and MCAO}" 44614)
+
+(toc "toc" "      3.1 Measurement model with time-averaged variables " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 3 "3.1" "\\subsection{Measurement model with time-averaged variables }" 45168)
+
+("sec:measurement-model" "s" "Assume the following measurement model \\begin{subequations} \\begin{align} \\boldsymbol{s}_k & = \\int_" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:meas_quadratic_modes" "e" "\\begin{align} \\boldsymbol{s}_k & = \\int_{(k-1)T_s}^{kT_s} \\D\\left( \\boldsymbol\\psi (\\tau)^\\tur - %P_" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:av_meas" "e" "\\average{\\boldsymbol\\phivec}_k \\triangleq \\int_{(k-1)T_s}^{kT_s} \\boldsymbol\\phivec(\\tau)\\dint \\tau " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:Gamma" "e" "\\D & \\triangleq \\left( \\begin{array}{c} \\D_\\textsf{TT1} " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:pt" "e" "\\gamma_\\textsf{T} & = \\frac{1}{S_\\frac{1}{4}}\\int_0^1\\int_0^{\\sqrt{1-y^2}} \\frac{\\partial}{\\partial " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:pf" "e" "\\gamma_\\textsf{F} & = \\frac{1}{S_\\frac{1}{4}}\\int_0^1\\int_0^{\\sqrt{1-y^2}} \\frac{\\partial}{\\partial " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:pa" "e" "\\gamma_\\textsf{A} & = \\frac{1}{S_\\frac{1}{4}}\\int_0^1\\int_0^{\\sqrt{1-y^2}} \\frac{\\partial}{\\partial " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+(toc "toc" "      3.2 Noise model" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 3 "3.2" "\\subsection{Noise model}" 50654)
+
+(toc "toc" "        3.2.1 Diffraction-limited case" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 4 "3.2.1" "\\subsubsection{Diffraction-limited case}" 50680)
+
+("eq:etab" "e" "\\sigma_\\eta = \\frac{\\theta_b}{\\textsf{SNR}}, [rad] " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:SNR" "e" "\\textsf{SNR}= \\frac{N_p}{\\sqrt{N_p+4N_b+4\\sigma_e^2}}, " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:thetab" "e" "\\theta_b = \\frac{3\\pi\\lambda\\sqrt{N_{sa}}}{16D_0}, " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+(toc "toc" "        3.2.2 Seeing-limited case" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 4 "3.2.2" "\\subsubsection{Seeing-limited case}" 52548)
+
+("fig:OIWFS_QuadCell_MeasError_nmrms_1x1_2x2subaps" "f" " " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" 54288)
+
+(toc "toc" "    4 Static reconstruction" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 2 "4" "\\section{Static reconstruction}" 55039)
+
+(toc "toc" "      4.1 Isoplanatic tilt correction" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 3 "4.1" "\\subsection{Isoplanatic tilt correction}" 55114)
+
+(toc "toc" "      4.2 Tilt tomography using virtual DMs" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 3 "4.2" "\\subsection{Tilt tomography using virtual DMs}" 55475)
+
+("eq:phi_aggregate_PS_modes" "e" "W(\\boldsymbol{\\rho}, \\boldsymbol{\\theta}, t) = \\sum_{i=2}^{6} \\alpha_i(t)Z_i\\left(\\frac{\\boldsymbol\\" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:r_l" "e" "r_l %\\egrefs{eq:r_p}{eq:r_n} = r_n \\underbrace{\\left(1-\\frac{h_\\text{\\tiny{DM}}}{h_{\\text{\\tiny{Na}}" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:r_p" "e" "% r_c \\triangleq1-h_\\text{\\tiny{DM}}/h_{\\text{\\tiny{Na}}} % " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" 58945)
+
+("eq:r_n" "e" "r_n \\triangleq \\frac{D_0}{D_0+FoV\\times h_\\text{\\tiny{DM}}\\times 1000}, " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:field-dependent-TT" "e" "\\TT(\\boldsymbol{\\rho}, \\boldsymbol{\\theta},t)= \\sum_{i=2}^{3} \\xi_i(\\mathbf{\\theta}, t)Z_i\\left(\\fra" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:Z4h_tip_tilt" "e" "\\boldsymbol\\xi(\\boldsymbol\\theta,t) & = % \\left( % \\begin{array}{ccccc} % r_n&0&r_n^2" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:TT_PS_definition" "e" "\\begin{align}\\label{eq:plate_scale_def} x_{k}^{\\textsf{tip}} & = 2(x_0, 0);" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:plate_scale_def" "e" "x_{k}^{\\textsf{tip}} & = 2(x_0, 0);" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:Pq2ps" "e" "\\Proj_{\\QPS}\\triangleq \\left( \\begin{array}{ccccc:c} 1 & \\0 & \\0 & \\0 & \\0 &\\0" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("sec:n_a-layer-altitude-variations" "s" "Although the NGS modes produce only field-dependent TT not seen by the LGS WFS, for a NGS looking up" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" 64410)
+
+(toc "toc" "      4.3 {Tilt tomography with spatio-angular reconstruction in NTAO and LTAO} In the NTAO\\footnote{Assume ti" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 3 "4.3" "\\subsection {Tilt tomography with spatio-angular reconstruction in NTAO and LTAO}
+
+In the NTAO\\footnote{Assume tilt-removed measurements.}/LTAO case, the tilt comp" 64698)
+
+("eq:fwd_MOAO_meas_model" "e" "\\svec_\\alphavec(t) = \\D \\phivec_\\alphavec (t) + \\etavec(t) " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:MMSE_theor_MOAO" "e" "\\mathcal{E}\\{\\phivec_\\betavec|\\svec_\\alphavec\\} \\triangleq \\CovMat_{(\\phivec_\\betavec,\\svec_\\alphave" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:hat_phi_Collapsed" "e" "\\widehat{\\phivec}_\\betavec \\triangleq\\average{ \\phivec_\\betavec \\phivec_\\alphavec^\\T } \\D^\\T \\left(\\" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:CalphaZernike" "e" "\\average{\\phi_i(0) \\phi_j(\\xi)} = 3.895\\left(\\frac{D}{r_0}\\right)^{\\frac{5}{3}} \\frac{\\int_0^{h_\\tex" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:Iij" "e" "I_{ij}(x) = & (-1)^{\\frac{n_1+n_2-m_1-m_2}{2}} \\sqrt{(n_1+2)(n_2+1)} % \\times \\nonumber" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" 68621)
+
+(toc "toc" "      4.4 Review of reconstructors " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 3 "4.4" "\\subsection{Review of reconstructors }" 69720)
+
+(toc "toc" "      4.5 Performance assessment" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 3 "4.5" "\\subsection{Performance assessment}" 70348)
+
+("eq:res_var" "e" "\\sigma^2(\\betavec) = \\average{\\Vert \\phivec(\\betavec) - \\widehat{\\phivec}(\\betavec)\\Vert^2} " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:res_var" "e" "\\sigma^2(\\betavec) & = \\tr\\{\\CovMat_\\betavec\\} + \\tr\\{\\Rec\\D\\CovMat_\\alphavec\\D^\\T\\Rec^\\T\\} " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:res_var_time" "e" "\\sigma^2(\\betavec, T_s) = \\average{\\Vert \\phivec(\\betavec,t+T_s) - \\phivec(\\betavec,t)\\Vert^2} " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:res_var_time" "e" "\\Rec = \\CovMat_{(\\phivec_{\\betavec,k+1},\\svec_{\\alphavec,k})}\\CovMat^{-1}_{\\svec_{\\alphavec, k} } " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:res_var" "e" "\\sigma^2(\\betavec) & = \\tr\\{\\CovMat_\\betavec\\} + \\tr\\{\\Rec\\D\\CovMat_\\alphavec\\D^\\T\\Rec^\\T\\} " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+(toc "toc" "    5 Dynamic controller of NGS modes" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 2 "5" "\\section{ Dynamic controller of NGS modes}" 72130)
+
+(toc "toc" "        5.0.1 near-Markovian time-progression model of the 1st-order " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 4 "5.0.1" "\\subsubsection{near-Markovian time-progression model of the 1st-order }" 72904)
+
+("sec:nearMarkovModel" "s" "The use of auto-regressive models has been given wide attention using the Zernike polynomials' expan" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:AR1model" "e" "\\phivec_{k+\\Delta}(\\alphavec) = \\Asa \\phivec_{k} (\\alphavec) + \\boldsymbol{\\nu}_k (\\alphavec) " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:Asa" "e" "\\Asa = \\arg\\min_{\\Asa'}\\average{\\left\\Vert\\phivec_{k+\\Delta} (\\alphavec)- \\Asa' \\phivec_k(\\alphavec)" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("Asa_Def" "e" "\\Asa = \\average{\\phivec_{k+\\Delta}\\phivec_k^\\T } \\average{ \\phivec_k \\phivec_k^\\T }^{-1} (\\alphavec)" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:state_noise_matrix" "e" "\\average{\\phivec \\phivec^\\T } = \\Asa \\average{ \\phivec \\phivec^\\T } \\Asa^\\T + \\average{\\boldsymbol{\\" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+(toc "toc" "      5.1 State-space representation" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 3 "5.1" "\\subsection{State-space representation}" 75359)
+
+("eq:stack_ss_c_tur_compact" "e" "\\left[\\begin{array}{c|c|c} \\mathcal{A} & \\mathcal{B} & \\mathcal{V}" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:single_rate_StatSA_RToperations" "e" "\\begin{align} \\widehat{\\phivec}_{k|k}(\\alphavec) & = \\widehat{\\phivec}_{k|k-1}(\\alphavec) + \\mathcal" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+(toc "toc" "      5.2 Other Add-ons: LQG + multi-rate and smoothing operation" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 3 "5.2" "\\subsection{Other Add-ons: LQG + multi-rate and smoothing operation}" 77257)
+
+("eq:u_avr" "e" "\\uvec_{k+\\Delta} & = \\mathbf{F} \\bar{\\mathcal{A}}'_\\Delta\\CovMat_{\\phivec_\\betavec,\\phivec_\\alphavec" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:A_avr" "e" "\\bar{\\mathcal{A}}'_\\Delta & \\triangleq \\frac{1}{M}\\sum_{i=1}^{M-1} \\mathcal{A}_{\\Delta + i/M} " "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+("eq:stack_ss_c_tur_compact" "e" "\\left[\\begin{array}{c|c|c} \\mathcal{A} & \\mathcal{B} & \\Gamma" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil)
+
+(toc "toc" "    6 Split tomography v. integrated tomography" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 2 "6" "\\section{Split tomography v. integrated tomography}" 81728)
+
+(appendix . t)
+
+(toc "toc" "    A Average-slope removal from measurements" "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex" nil 2 "A" "\\section{Average-slope removal from measurements}" 81856)
+
+(bib "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/references.bib")
+
+(eof "/Users/ccorreia/Documents/LAM/ReportsPapers/Notes/2015_06_NGSmodes_LaserTomography/NGSmodes_LaserTomography.tex")
+))
+

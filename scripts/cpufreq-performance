@@ -1,0 +1,5 @@
+#! /bin/sh
+sudo cpufreq-set --min 2.8GHz --max 2.8GHz -c 0 -g 'performance'
+sudo cpufreq-set --min 2.8GHz --max 2.8GHz -c 1 -g 'performance'
+sudo cpufreq-set --min 2.8GHz --max 2.8GHz -c 2 -g 'performance'
+sudo cpufreq-set --min 2.8GHz --max 2.8GHz -c 3 -g 'performance'

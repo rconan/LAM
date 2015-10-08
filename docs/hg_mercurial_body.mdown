@@ -1,0 +1,192 @@
+
+# Basic use of Mercurial / Hg
+ It has been noted that the biggest obstacle for adoption of VCS in academic environment is the
+need to study large amount of new commands for a VCS. The development process of scientific software
+is usually less complicated than the conventional software.
+Therefore, only a few basic commands are really needed for
+simple yet effective control of the development process:
+
+-   adding new files to the repository (`hg add`);
+
+-   removing files from the repository (`hg rm`);
+
+-   checking the state of the repository (`hg st`);
+
+-   committing to the repository (`hg ci -m "commit message"`);
+
+-   pulling the changes from another repository / web web-based
+    hosting service   
+    (`hg pull https://user@bitbucket.org/owner/project`);
+
+-   pushing the changes to another repository / web web-based
+    hosting service  
+    (`hg push /home/user/backups/currentproj`);
+
+-   updating the files in the repository, especially after pulling from another repo  (`hg update`);
+
+
+Before that, you need either make a new repository (use `hg init` command to initialize the repository) or \textit{clone} an existing one    (`hg cone /home/user/projects/repo`).
+
+There are many web-based services for software projects that use
+version control systems; such web services can be used for
+synchronisation of repository by other researchers. As an example,
+*www.bitbucket.org* can be mentioned for the Mercurial DVCS.
+
+
+
+
+
+
+# Branches in Mercurial
+If you to develop a feature, but you don't want to see it in the mainline yet - you may want to make a branch. You can do a [branch by just cloning the repository](http://stevelosh.com/blog/2009/08/a-guide-to-branching-in-mercurial/), but this is [not a Bazaar](http://solovyov.net/blog/2011/bzr-hate-and-hate/) - Mercurial can do better.
+
+
+
+## Named branches in HG/Mercurial
+Mercurial supports named branches so the branch name is a property of the changeset (see [NamedBranches](http://mercurial.selenic.com/wiki/NamedBranches)). If no branch name was set, Mercurial assigns the branch name **"default"**. 
+
+The command **`hg branches`** lists all branch names existing in a repository:
+
+> default                     2635:e04d7f3658e1
+
+> wfs_lenslets_sim            2612:9b85ce2a4a39
+
+The command **`hg branch`** may be used to set a branch name, which will be used for subsequent commits:
+
+>  hg branch am_a_new_branch
+
+will start the new branch `am_a_new_branch` and all the commits will be made in this new branch. [Mercurial branch name is an attribute associated with a changeset.](http://mercurial.selenic.com/wiki/Branch) A new branch name can be started in the middle of a development line, not necessarily at a diverging point. For example:
+
+> hg branch branch-1          # start a new branch name      
+
+> ... modify something in the repository
+
+> hg commit -m "branch-1"     # the changeset has branch name "branch-1"
+
+> hg branch branch-2          # start another branch name
+
+> ... modify something in the repository
+
+> hg commit -m "branch-2"     # the changeset has branch name "branch 2"
+
+
+### Find What Branch You're On
+Calling hg branch without a name shows the current branch name of the working directory. Calling `hg branch` after a `hg init` outputs "default", the (reserved) name of the default branch:
+
+> hg init
+
+> hg branch
+
+> default
+
+
+### Create a Branch
+To begin a new branch, set the branch name of the working directory and then commit it:
+
+> hg branch *newfeature*
+
+> marked working directory as branch *newfeature*
+
+> hg branch
+
+> *newfeature*
+
+From this point on, all committed changesets will be associated with the supplied branch name *newfeature*.
+
+
+### Create a Branch From an Older Revision
+[To get named branch BRANCHNAME](http://stackoverflow.com/questions/13549931/create-a-new-branch-at-a-certain-revision), update your working copy to the revision in question and then creating the new branch:
+
+> hg update -r 500
+
+> hg branch BRANCHNAME
+
+> hg commit -m 'made a new branch from revision 500'
+
+Commit *is a must*, because the branch will not exist in the repository until the next commit!
+
+
+### Switch Between Branches
+Switch among branches using the `hg update` command:
+
+> hg update -C main
+
+> hg update -C newfeature
+
+By providing a branch name, `hg update` will update your working copy to the tip on this branch. 
+
+> **Note: the -C option discards local changes, so be careful before using this option.**
+
+
+### Merge Branches
+[I've finished working on a feature branch feature-x](http://stackoverflow.com/questions/3227988/closing-hg-branches). One way is to just leave merged feature branches open (and inactive):
+
+    hg up default
+    hg merge feature-x
+    hg ci -m merge
+
+This is simpler, but it leaves an open branch. If you want merge with `default` **and close the branch** `BRANCHNAME`, do the following:
+
+       hg up BRANCHNAME
+       hg commit --close-branch -m "Closing the branch"
+       hg up default
+       hg merge BRANCHNAME
+
+If you just want to close the branch, do:
+
+      hg commit --close-branch
+
+should be enough to mark a branch close. More in [this excellent post](http://stackoverflow.com/questions/2237222/how-to-correctly-close-a-feature-branch-in-mercurial?rq=1).
+
+
+#### Bookmarks vs Named branches
+Since Mercurial 1.8 _bookmarks_ have become a core feature of Mercurial. Bookmarks are more convenient for branching than named branches. See also this question: [Mercurial branching and bookmarks](http://stackoverflow.com/questions/1780778/mercurial-branching-and-bookmarks)
+
+[Bookmarks are tags](http://stackoverflow.com/questions/1780778/mercurial-branching-and-bookmarks?lq=1) that move forward automatically to subsequent changes, leaving no mark on the changesets that previously had that bookmark pointing toward them. Named branches, on the other hand, are indelible marks that are part of a changeset. Multiple heads can be on the same branch, but only one head at a time can be pointed to by the same bookmark. Named branches are pushed/pulled from repo to repo, and bookmarks don't travel. [More info about *concepts* behind Mercurial bookmarks and branches.](http://stevelosh.com/blog/2009/08/a-guide-to-branching-in-mercurial/)
+
+
+
+#### Is it possible to reopen a closed branch in Mercurial?
+[Yes, sure.](http://stackoverflow.com/questions/4099345/is-it-possible-to-reopen-a-closed-branch-in-mercurial) You can just `hg update` to the closed branch then do another `hg commit` and it will automatically reopen.
+
+The `closed` flag is just used to filter out closed branches from `hg branches` and `hg heads` unless you use the `--closed` option - it doesn't prevent you from using the branches.
+
+
+#### Graphical view of commits and merges
+The `hg serve` command  that starts its own webserver:
+
+    hg serve
+    listening at http://dot.dot:8000/ (bound to *:8000)
+
+That just point your favourite browser to **http://dot.dot:8000/** and we can see a web server for Mercurial!
+
+### Delete / Pruning branches
+There are several ways of managing branches that you no longer plan on working with:
+
+1. Closing branches
+2. No-Op Merges
+3. Using clone
+4. Using strip
+
+[More info about pruning the branches.](http://mercurial.selenic.com/wiki/PruningDeadBranches)
+
+
+
+## How can I recover a removed file in Mercurial?
+An [excellent question](http://stackoverflow.com/questions/2175427/how-can-i-recover-a-removed-file-in-mercurial-if-at-all) indeed! [Here is the solution.](http://stackoverflow.com/a/3174414) 
+
+**First**, use 
+
+> `hg grep`
+
+ to find the deleted file you wish to recover.  The output of this command will show you the last revision for which the file was present, and the path to the deleted file. Or, if you know the name of the delete file you can find its revision easily with 
+
+> `hg log -r "removes('NAME.c')"`
+
+This will give you the revision in witch a file called NAME.c (in the root) is deleted.
+
+**Second**, run 
+
+> `hg revert -r <revision number> <path to deleted file>`
+
+The deleted file will now be in your working copy, ready to be committed back into head.

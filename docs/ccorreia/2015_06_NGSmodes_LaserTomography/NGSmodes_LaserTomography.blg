@@ -1,0 +1,48 @@
+This is BibTeX, Version 0.99d (TeX Live 2014)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: NGSmodes_LaserTomography.aux
+The style file: apalike.bst
+Database file #1: references.bib
+Warning--can't use both volume and number fields in gavel02a
+You've used 37 entries,
+            1935 wiz_defined-function locations,
+            696 strings with 10721 characters,
+and the built_in function-call counts, 17129 in all, are:
+= -- 1677
+> -- 792
+< -- 27
++ -- 275
+- -- 273
+* -- 1566
+:= -- 2921
+add.period$ -- 112
+call.type$ -- 37
+change.case$ -- 317
+chr.to.int$ -- 35
+cite$ -- 38
+duplicate$ -- 574
+empty$ -- 1149
+format.name$ -- 336
+if$ -- 3339
+int.to.chr$ -- 3
+int.to.str$ -- 0
+missing$ -- 39
+newline$ -- 188
+num.names$ -- 115
+pop$ -- 261
+preamble$ -- 1
+purify$ -- 320
+quote$ -- 0
+skip$ -- 441
+stack$ -- 0
+substring$ -- 1360
+swap$ -- 85
+text.length$ -- 8
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 216
+warning$ -- 1
+while$ -- 137
+width$ -- 0
+write$ -- 486
+(There was 1 warning)

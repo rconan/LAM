@@ -1,0 +1,5 @@
+#! /bin/sh
+sudo cpufreq-set --min 800MHz --max 2.8GHz -c 0 -g 'ondemand'
+sudo cpufreq-set --min 800MHz --max 2.8GHz -c 1 -g 'ondemand'
+sudo cpufreq-set --min 800MHz --max 2.8GHz -c 2 -g 'ondemand'
+sudo cpufreq-set --min 800MHz --max 2.8GHz -c 3 -g 'ondemand'

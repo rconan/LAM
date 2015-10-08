@@ -1,0 +1,31 @@
+\contentsline {section}{\numberline {1}Fundamentals of the LQG control approach }{3}{section.1}
+\contentsline {subsection}{\numberline {1.1}Optimality criteria }{4}{subsection.1.1}
+\contentsline {subsection}{\numberline {1.2}Step-by-step solution }{4}{subsection.1.2}
+\contentsline {section}{\numberline {2}LQG controller for AO systems with infinitely fast mirrors}{6}{section.2}
+\contentsline {subsection}{\numberline {2.1}Solution in the \emph {complete-state information} case}{6}{subsection.2.1}
+\contentsline {subsection}{\numberline {2.2}Solution in the \emph {incomplete state information} case}{7}{subsection.2.2}
+\contentsline {subsection}{\numberline {2.3}Extension to vibration suppression}{9}{subsection.2.3}
+\contentsline {section}{\numberline {3}NGS modes in laser-tomography AO: LTAO and MCAO}{10}{section.3}
+\contentsline {subsection}{\numberline {3.1}Measurement model with time-averaged variables }{10}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}Noise model}{12}{subsection.3.2}
+\contentsline {subsubsection}{\numberline {3.2.1}Diffraction-limited case}{12}{subsubsection.3.2.1}
+\contentsline {subsubsection}{\numberline {3.2.2}Seeing-limited case}{12}{subsubsection.3.2.2}
+\contentsline {section}{\numberline {4}Static reconstruction}{13}{section.4}
+\contentsline {subsection}{\numberline {4.1}Isoplanatic tilt correction}{13}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Tilt tomography using virtual DMs}{13}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.3}Tilt tomography with spatio-angular reconstruction in NTAO and LTAO}{16}{subsection.4.3}
+\contentsline {subsection}{\numberline {4.4}Review of reconstructors }{18}{subsection.4.4}
+\contentsline {subsection}{\numberline {4.5}Performance assessment}{18}{subsection.4.5}
+\contentsline {section}{\numberline {5} Dynamic controller of NGS modes}{19}{section.5}
+\contentsline {subsection}{\numberline {5.1}near-Markovian time-progression model of the 1st-order }{19}{subsection.5.1}
+\contentsline {subsection}{\numberline {5.2}State-space representation}{20}{subsection.5.2}
+\contentsline {subsection}{\numberline {5.3}LQG + time-smoothing operation}{21}{subsection.5.3}
+\contentsline {subsection}{\numberline {5.4}LQG + multi-rate}{22}{subsection.5.4}
+\contentsline {section}{\numberline {6}Split tomography v. integrated tomography}{22}{section.6}
+\contentsline {section}{\numberline {7}Design of HARMONI (E-IFU) tilt anisoplanatism controller}{23}{section.7}
+\contentsline {subsection}{\numberline {7.1}Isoplanatic tilt}{23}{subsection.7.1}
+\contentsline {subsection}{\numberline {7.2}Anisoplanatic tilt}{23}{subsection.7.2}
+\contentsline {subsection}{\numberline {7.3}Non-stationary tilt from M4 off-loading}{23}{subsection.7.3}
+\contentsline {section}{\numberline {A}Average-slope removal from measurements}{23}{appendix.A}
+\contentsline {section}{\numberline {B}LQG controller transfer functions}{24}{appendix.B}
+\contentsline {subsection}{\numberline {B.1}Script to use }{26}{subsection.B.1}
