@@ -32,11 +32,11 @@ tel = telescope(D,'resolution',nRes,...
 tel.pupil(35*nPx:42*nPx,1:7*nPx) = 0;
 
 telFull = telescope(D,'resolution',nRes,...
-    'obstructionRatio',0.3,'fieldOfViewInArcsec',30,'samplingTime',1/samplingFreq);
+    'obstructionRatio',0.3,'fieldOfViewInArcsec',fieldOfViewInArcsec,'samplingTime',1/samplingFreq);
 
 
 telMasked = telescope(D,'resolution',nRes,...
-    'obstructionRatio',0.3,'fieldOfViewInArcsec',30,'samplingTime',1/samplingFreq);
+    'obstructionRatio',0.3,'fieldOfViewInArcsec',fieldOfViewInArcsec,'samplingTime',1/samplingFreq);
 
 % cut off a portion of the pupil that is vignetted
 telMasked.pupil(35*nPx:42*nPx,1:7*nPx) = 0;
@@ -220,7 +220,7 @@ for k=1:cam.startDelay + cam.exposureTime
     tic
     k
     % Objects update
-    +t?el;
+    +tel;
     +lgsAst;
     +science;
     % Pseudo-open-loop controller
