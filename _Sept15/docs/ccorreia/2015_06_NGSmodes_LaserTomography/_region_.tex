@@ -1,0 +1,363 @@
+\message{ !name(NGSmodes_LaserTomography.tex)}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                         File: osa-revtex4-1.tex                             %
+%                        Date: April 15, 2013                                 %
+%                                                                             %
+%                              BETA VERSION!                                  %
+%                   JOSA A, JOSA B, Applied Optics, Optics Letters            %
+%                                                                             %
+%            This file requires the substyle file osajnl4-1.rtx,              %
+%                   running under REVTeX 4.1 and LaTeX 2e                     %
+%                                                                             %
+%                   USE THE FOLLOWING REVTeX 4-1 OPTIONS:                     %
+% \documentclass[osajnl,twocolumn,showpacs,superscriptaddress,10pt]{revtex4-1}%
+%                    %% Use 11pt for Applied Optics                           %
+%                                                                             %
+%               (c) 2013 The Optical Society of America                       %
+%                                                                             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\documentclass[osajnl,twocolumn,showpacs,superscriptaddress,11pt]{revtex4-1} %% use 11pt for Applied Optics
+%\documentclass[osajnl,preprint,showpacs,superscriptaddress,11pt]{revtex4-1} %% use 12pt for preprint option
+\documentclass[a4paper,12pt]{article}
+\usepackage{graphicx}
+%\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{amsmath,amssymb,amsfonts}       % Typical maths resource packages
+
+\usepackage{color}
+%\usepackage{hyperref}%
+\definecolor{gris30}{gray}{0.40}
+\definecolor{orange}{rgb}{1,0.5,0}
+\definecolor{mygreen}{rgb}{0,0.4,0}
+\usepackage[bookmarksopen=true,bookmarksnumbered=true,breaklinks=true,linktocpage=true,colorlinks=true,linkcolor=orange,citecolor=mygreen,pdfusetitle,
+               pdfauthor={Carlos Correia},pdftitle={GPI TT controller},
+               pdfkeywords={LQG control, Kalman filtering, Adaptive
+                 Optics, Gemini Planet Imager}]{hyperref}%
+\usepackage[hyperpageref]{backref} % back references in biblio
+
+%\usepackage{mathrsfs}
+%\usepackage{enumerate, enumitem}
+
+%\usepackage{multirow}
+%\usepackage{arydshln}
+
+%\usepackage{draftwatermark}
+%\SetWatermarkScale{1}
+%\usepackage[none, bottom,dark,outline,timestamp]{draftcopy}
+%\usepackage{draftcopy}
+%\draftcopyName{draft, v. 3.0, 04/06/2013 - to be submitted to JOSAA}{110}
+%\draftcopyVersion{June 13}
+%\draftcopySetScaleFactor{0.9}
+
+\newcommand{\egref}[1]{\stackrel{\textrm{(\ref{#1})}}{=} } %          \stackrel{\textrm{(\ref{eq:phi_cor_double_stage})}}{=}
+\newcommand{\egrefs}[2]{\stackrel{\textrm{(\ref{#1},\ref{#2})}}{=} }
+\newcommand{\refeq}[1]{(eq.~\ref{#1})}
+
+\newcommand{\ccc}[1]{{\color{red}\textrm{#1}}}
+
+\def\mathbi#1{\textbf{\em #1}}
+
+% - hyphenation penalties ---
+\hyphenpenalty=50000
+\tolerance=10000
+
+\newcommand{\tildesi}{\tilde{s^i}}
+\newcommand{\ipif}{2j\pi f}
+\newcommand{\tildehu}{\tilde{h_1^i}}
+\newcommand{\tildehd}{\tilde{h_2^i}}
+\newcommand{\eipif}{e^{j\bk_i f}}
+\newcommand{\eipifm}{e^{-j\bk_i f}}
+\newcommand{\absd}{\right |}
+\newcommand{\absg}{\left |}
+\newcommand{\fleche}{$\Longrightarrow$}
+%\newcommand{\argmax}{\mathop{\mathrm{arg\,max}}}\
+\newcommand{\argmin}{\mathop{\mathrm{arg\,min}}}
+\newcommand{\TFd}{\mathop{\mathbf{TF}}}
+\newcommand{\TFc}{\boldsymbol{\mathcal{F}}} % Transformée de Fourier continue
+%\newcommand{\Fc}{\boldsymbol{\mathcal{F}}} % Transformée de Fourier continue
+\newcommand{\norm}[1]{\left \| {#1} \right \|}
+\newcommand{\average}[1]{\left \langle {#1} \right \rangle}
+\newcommand{\trace}[1]{\text{trace}\left \{ {#1} \right \}}
+\newcommand{\bb}{{\bf b}}
+\newcommand{\br}{{\bf r}}
+\newcommand{\bff}{{\bf f}}
+\newcommand{\bk}{{\bf k}}
+\newcommand{\Cn}{$C_n^2\ $}
+\newcommand{\Cnh}{$C_n^2(h)\ $}
+\newcommand{\dro}{$\frac{D}{r_0} \ $}
+\newcommand{\ro}{$r_0$}
+%\newcommand{\Lo}{$L_0$}
+\newcommand{\Lo}{$\mathcal{L}_0$}
+\newcommand{\Da}{\text{D}_{ani}}
+\newcommand{\laa}{\left \langle}
+\newcommand{\raa}{\right \rangle}
+\newcommand{\pho}{\Phi_{\text{res},0}}
+\newcommand{\pha}{\Phi_{\text{res},\alpha}}
+\newcommand{\lc}{\left [}
+\newcommand{\rc}{\right ]}
+\newcommand{\lp}{\left \lbrace}
+\newcommand{\rp}{\right \rbrace}
+\newcommand{\lpp}{\left (}
+\newcommand{\rpp}{\right )}
+\newcommand{\barred}{\right |}
+\newcommand{\barreg}{\left |}
+\newcommand{\alphab}{\text{\boldmath$\alpha$}}
+\newcommand{\rhob}{\text{\boldmath$\rho$}}
+\newcommand{\FEP}{\operatorname{FEP}}
+\newcommand{\AIRY}{\operatorname{Airy}}
+\newcommand{\FTO}{\operatorname{FTO}}
+\newcommand{\SR}{\operatorname{SR}}
+\newcommand{\Ec}{\operatorname{Ec}}
+\newcommand{\CC}{\text{\large{\bf C}}}
+\newcommand{\var}{\text{VAR}}
+%\newcommand{\C}{\text{\bf{\large C}}}
+\newcommand{\E}{\text{\bf{\large E}}}
+\newcommand{\M}{\text{\bf{\large M}}}
+\newcommand{\II}{\text{\bf{\large I}}}
+\newcommand{\Ztr}{\text{\bf{\large Z}}}
+\newcommand{\PP}{\text{\bf{\large P}}}
+\newcommand{\pp}{\text{\bf p}}
+\newcommand{\LL}{\text{\bf{\large L}}}
+\newcommand{\R}{\text{{\large R}}}
+\newcommand{\A}{\text{\bf{\large A}}}
+\newcommand{\W}{\text{\bf{\large W}}}
+\newcommand{\V}{\text{\bf{\large V}}}
+\newcommand{\U}{\text{\bf{\large U}}}
+\newcommand{\C}{\text{\bf{\large C}}}
+\newcommand{\cc}{\text{\bf c}}
+%\newcommand{\D}{\text{\bf{\large D}}}
+\newcommand{\B}{\text{\bf{\large B}}}
+\newcommand{\HH}{\text{\bf{\large H}}}
+\newcommand{\OO}{\text{\bf{\large 0}}}
+\newcommand{\epsB}{\text{\large{\boldmath$\epsilon$}}}
+\newcommand{\PhiB}{\text{\boldmath$\Phi$}}
+\newcommand{\varphiB}{\text{\large{\boldmath$\varphi$}}}
+\newcommand{\varphib}{\text{{\boldmath$\varphi$}}}
+\newcommand{\T}{\mathsf{T}} % matrix transpose
+\newcommand{\Hm}{\text{H}} % matrix Hermitian transpose
+\newcommand{\0}{\mathsf{0}} % null matrix 
+\newcommand{\I}{\mathbf{I}} % identity matrix 
+% \newcommand{\Ad}{\mathcal{A}_d} % transition matrix 
+% \newcommand{\Bd}{\mathcal{B}_d} % input matrix 
+% \newcommand{\Cd}{\mathcal{C}_d} % observation matrix 
+% \newcommand{\Dd}{\mathcal{D}_d} % input matrix 
+\newcommand{\Hkal}{\mathcal{H}_{\infty}} % Kalman gain
+\newcommand{\Lkal}{\mathcal{L}_{\infty}} % Kalman gain
+\newcommand{\K}{\mathcal{K}_{\infty}} % LQG gain
+\newcommand{\SigmaK}{\Sigma_\infty} % LQG gain
+\newcommand{\Fc}{\boldsymbol{\mathcal{F}}} % Transformée de Fourier continue
+\newcommand{\TF}{\text{\bf TF}} % Transformée de Fourier continue
+\newcommand{\z}{{z}} % Z-transform integrand
+%\newcommand{\N}{\text{\bf N}} % DM influence function operator
+
+
+\newcommand{\Proj}{\mathbf{H}} % Projector
+\newcommand{\Rec}{\mathbf{R}} % reconstructor
+\newcommand{\Emv}{\mathbf{E}} % Estimator, minimum-variance
+\newcommand{\Fit}{\mathbf{F} }% Fitting operator
+\newcommand{\CovMat}{\boldsymbol{\Sigma}} % reconstructor
+
+% --- AR model matrices --
+\newcommand{\Aar}{\mathbf{A}} % AR model A matrix
+\newcommand{\Barr}{\mathbf{B}} % AR model B matrix
+\newcommand{\Car}{\mathbf{C}} % AR model C matrix
+
+
+\newcommand{\TFD}{\text{\bf D}} % TF WFS  operator
+\newcommand{\TFN}{\text{\bf N}} % TF DM influence function operator
+\newcommand{\DSP}{\text{\bf W}} % DSP d'une fonction
+
+% ---- AO ----
+\newcommand{\N}{\mathbf{N}} % DM influence function operator
+\newcommand{\D}{\mathbf{G}} % WFS  operator
+\newcommand{\Mcom}{\mathsf{M}_{com}} % matrice commande
+\newcommand{\Mint}{\mathsf{M}_{int}} % matrice d'interaction
+\newcommand{\mmse}{\text{\tiny{MMSE}}} % mmse reconstructor
+\newcommand{\LS}{\text{\tiny{LS}}} % LS reconstructor
+\newcommand{\xz}{\text{\bf X}} % Z-transform of state x
+\newcommand{\uz}{\text{\bf U}} % Z-transform of command u
+\newcommand{\yz}{\text{\bf S}} % Z-transform of measurements y
+\newcommand{\WT}{\text{wt}} % Woofer-Tweeter acronym
+\newcommand{\woo}{\text{w}} 
+\newcommand{\twe}{\text{t}} 
+\newcommand{\tr}{\operatorname{trace}} % Z-transform of measurements y 
+\newcommand{\eig}{\operatorname{;}}
+\newcommand{\ImSpace}{\operatorname{Im}}
+%\newcommand{\var}{\operatorname{var}}}
+%\newcommand{\ln}{\operatorname{ln}}
+\newcommand{\Esp}{\operatorname{E}}
+\newcommand{\lemmaend}{\hfill \ensuremath{\Box}}
+\newcommand{\remend}{\hfill \ensuremath{\blacktriangleleft}}
+\newcommand{\exend}{\hfill \ensuremath{\blacktriangleleft}}
+\newcommand{\thend}{\hfill \ensuremath{\blacktriangle}}
+\newcommand{\propend}{\hfill \ensuremath{\bigtriangleup}}
+\newcommand{\tur}{\mathsf{\tiny{tur}}} 
+\newcommand{\m}{\mathsf{m}} 
+\newcommand{\dint}{\mathrm{d}} % var intégration 
+\newcommand{\res}{\mathsf{\tiny{res}}} 
+\newcommand{\cor}{\mathsf{\tiny{cor}}} 
+\newcommand{\crit}{\mathsf{\tiny{crit}}}
+\newcommand{\opt}{\infty} 
+\newcommand{\IC}{\mathsf{InfC}} 
+\newcommand{\IInc}{\mathsf{InfI}} 
+\newcommand{\bnu}{\vec{\nu}} 
+
+\newcommand{\vib}{\mathsf{\tiny{vib}}}
+\newcommand{\TT}{\mathsf{\tiny{TT}}}
+\newcommand{\PS}{\mathsf{\tiny{PS}}}
+\newcommand{\QPS}{\mathsf{\tiny{PS2Q}}}
+
+\newcommand{\ps}{\chi}
+
+\newcommand{\Ad}{\mathcal{A}_\mathsf{tur}} % transition matrix 
+\newcommand{\Bd}{\mathcal{B}_\mathsf{tur}} % input matrix 
+\newcommand{\Cd}{\mathcal{C}_\mathsf{tur}} % observation matrix 
+\newcommand{\Dd}{\mathcal{D}_\mathsf{tur}} % input matrix 
+\newcommand{\Vd}{\boldsymbol{\Gamma}} 
+
+\newcommand{\oloop}{\mathsf{\tiny{ol}}} 
+\newcommand{\sys}{\mathsf{\tiny{sys}}} 
+\newcommand{\lead}{\mathsf{\tiny{lead}}} 
+\newcommand{\lag}{\mathsf{\tiny{lag}}} 
+\newcommand{\wfs}{\mathsf{\tiny{wfs}}} 
+\newcommand{\dac}{\mathsf{\tiny{dac}}} 
+\newcommand{\intgr}{\mathsf{\tiny{int}}} 
+
+%\newcommand{\ol}{\mathsf{\tiny{ol}}} 
+\newcommand{\cl}{\mathsf{\tiny{cl}}} 
+
+\newcommand{\thetavec}{{\boldsymbol{\theta}}} 
+\newcommand{\alphavec}{{\boldsymbol{\alpha}}} 
+\newcommand{\betavec}{{\boldsymbol{\beta}}} 
+\newcommand{\rhovec}{\boldsymbol{\rho}}%{{\boldsymbol{\rho}}} 
+\newcommand{\etavec}{{\boldsymbol{\eta}}} 
+\newcommand{\phivec}{{\boldsymbol{\psi}}} 
+\newcommand{\varphivec}{{\boldsymbol{\varphi}}} 
+\newcommand{\varepsilonvec}{{\boldsymbol{\varepsilon}}} 
+\newcommand{\svec}{{\mathbf{s}}} 
+\newcommand{\xvec}{{\mathbf{x}}} 
+\newcommand{\vvec}{{\mathbf{v}}} 
+\newcommand{\uvec}{{\mathbf{u}}} 
+\newcommand{\rvec}{{\mathbf{r}}} 
+\newcommand{\Asa}{{\mathbf{A}}}
+\newcommand{\Aexp}{{\mathbf{A}_\text{\tiny{LAY}}}}
+\newcommand{\AexpT}{{\mathbf{A}_\text{\tiny{LAY}}^\T}}
+
+\newcommand{\Mexp}{{\mathcal{M}_\infty^\text{\tiny{LAY}}}}
+\newcommand{\Lexp}{{\mathcal{L}_\infty^\text{\tiny{LAY}}}}
+\newcommand{\Sigmaexp}{{\CovMat_\infty^\text{\tiny{LAY}}}}
+\newcommand{\SigmaexpN}{{\CovMat_n^\text{\tiny{LAY}}}}
+\newcommand{\Msa}{{\mathcal{M}_\infty}}
+\newcommand{\SigmaSA}{{\CovMat_\infty}}
+\newcommand{\SigmaSAN}{{\CovMat_n}}
+
+\newcommand{\Ndm}{{\mathsf{N_\text{DM}}}} 
+\newcommand{\Nact}{{\mathsf{N_\text{act}}}} 
+\newcommand{\Nwfs}{{\mathsf{N_\text{WFS}}}} 
+\newcommand{\Nslopes}{{\mathsf{N_\text{s}}}} 
+\newcommand{\Nl}{{\mathsf{N_\text{l}}}} 
+% \newenvironment{prop}[1][Proposition :]{\begin{trivlist}
+% \item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+% \newenvironment{proof}[1][Proof :]{\begin{trivlist}
+% \item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+
+%  \newenvironment{comment}[1][Comment:]{\begin{trivlist}
+%  \item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+
+% \newcommand{\qed}{\hfill \ensuremath{\blacksquare}}
+
+
+
+\newcommand{\ps}{\mu}
+\newcommand{\ProjTheta}{\mathbf{P}_{\theta}\,} % angular projection matrix 
+\newcommand{\Proj}{\mathbf{P}} % projection matrix 
+\newcommand{\ProjPS}{\mathbf{P}_\text{\tiny{NGS}}} % projection matrix NGS2Z
+
+
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\newenvironment{proof}[1][Proof]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+\newenvironment{definition}[1][Definition]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+\newenvironment{example}[1][Example]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+\newenvironment{remark}[1][Remark]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+
+\newcommand{\qed}{\nobreak \ifvmode \relax \else
+      \ifdim\lastskip<1.5em \hskip-\lastskip
+      \hskip1.5em plus0em minus0.5em \fi \nobreak
+      \vrule height0.75em width0.5em depth0.25em\fi}
+
+%%%%%%%%%%%%%%%%%% title page information %%%%%%%%%%%%%%%%%%
+\title{NGS modes in laser tomography AO systems} 
+%\author{C. Correia and K. Jackson}
+\author{Carlos M. Correia}%\email{ccorreia@astro.up.pt} %% email address is required
+% \affiliation{Institute of Astrophysics and Space Sciences, University of Porto, CAUP, Rua das Estrelas, 4150-762 Porto, Portugal}
+% \affiliation{Dept. of Physics and Astronomy, Faculty of Sciences, University of Porto,
+% Rua do Campo Alegre 687, PT4169-007 Porto, Portugal}
+% %\affiliation{Centre for Astrophysics, University of Porto, Rua das Estrelas, 4150-762 Porto, Portugal}
+% \affiliation{Adaptive Optics Laboratory, University of Victoria, Victoria, BC V8P 5C2}
+% \author{Kate Jackson$^{3}$}
+% \affiliation{Dept. of Mechanical Engineering, University of Victoria, Canada}
+% \author{ and the Raven Team}
+%\author{(C$^2$)\,$^{a,b,*}$, Kate Jackson$^b$, Jean-Pierre V\'eran$^a$ \textit{et al}}
+% \affiliation{$^{a}$ Centre for Astrophysics, University of Porto, Rua das Estrelas, 4150-762 Porto, Portugal}
+% \affiliation{$^{b}$Adaptive Optics Laboratory, University of Victoria, Victoria, BC V8P 5C2}
+% \address{$^{c}$Herzberg Institute of Astrophysics, National Research Council, Canada}
+%\\$^{*}$carlos.correia@nrc.gc.ca}
+ 
+%\address{ $^{b}$AO lab, UVic, Victoria, BC Canada} 
+%\email{$^*$ccorreia@astro.up.pt} %% email address is required
+
+%\homepage{http://astro.up.pt/~ccorreia/} %% author's URL, if desired
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%% abstract and OCIS codes %%%%%%%%%%%%%%%%
+%% [use \begin{abstract*}...\end{abstract*} if exempt from copyright]
+
+%%%%%%%%%%%%%%%%%%%%%%% begin %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\message{ !name(NGSmodes_LaserTomography.tex) !offset(1569) }
+
+         
+If instead we were to compute   $\uvec_k = -\K \widehat{\xvec}_{k|k-1}$ then
+one would get
+  \begin{equation}
+    \mathbf{C}_p(\z) =  - \left[ \I + z^{-1}\K \Lambda_{p} \left(\z^{-d} \Lkal
+      \mathcal{D} + \Bd \right)\right]^{-1} z^{-1}\K
+            \Lambda_{p} \Ad \Hkal  .
+  \end{equation}
+
+  For a command $\uvec_k = -\K
+  \widehat{\xvec}_{k|k}$,
+
+ \begin{equation}
+    \mathbf{C}_e(\z)  = - \left\{\I + \K \Lambda_{e} \left[z^{-1}
+        (\I+\Hkal\Cd) \Bd + \z^{-d}\Hkal\mathcal{D}\right] \right\}^{-1} \K \Lambda_{e} \Hkal,
+  \end{equation}
+
+where 
+  \begin{equation}
+    \Lambda_{e} = \left(\I - \z^{-1}\Ad + \z^{-1} \Hkal \Cd \Ad \right)^{-1}.
+  \end{equation}
+
+\propend
+        \end{property}
+
+        \begin{demo} \textbf{Demonstration.}
+
+          The state-update and state-estimate equations of the LQG are
+          
+\message{ !name(NGSmodes_LaserTomography.tex) !offset(1680) }
+
+\end{document}
+

@@ -1,0 +1,16 @@
+cd $HOME
+vim .hgrc %create file if not created
+add to file
+--------------------------------------------------------
+[ui]
+username = matuser
+[paths]
+default=https://cmcorreias@bitbucket.org/aorta/oomao_lam
+--------------------------------------------------------
+
+Access hg
+
+hg pull % pull from repo
+hg up   % update local files
+hg ci -m "message" % commit changes 
+hg push % push them to the server

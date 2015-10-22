@@ -515,7 +515,7 @@ lgs_ps_eResRms = ngs.opdRms*1e9;
 % A 3 LGS asterism evenly located on a 20arcsec diameter ring and the corresponding \oo{slopesLinearMMSE}
 % object are created.
 % </latex>
-lgsAst = source('asterism',{[3,arcsec(10),0]},'height',90e3);
+lgsAst = source('asterism',{[6,arcsec(10),0]},'height',90e3);
 % figure, imagesc(tel, [ngs,lgsAst])
 lgsAst_slmmse = slopesLinearMMSE(wfs,tel,atm,lgsAst,'mmseStar',ngs,'NF',1024);
 %%

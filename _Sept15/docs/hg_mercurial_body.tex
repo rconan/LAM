@@ -1,0 +1,316 @@
+\section{Basic use of Mercurial / Hg}
+
+It has been noted that the biggest obstacle for adoption of VCS in
+academic environment is the need to study large amount of new
+commands for a VCS. The development process of scientific software
+is usually less complicated than the conventional software.
+Therefore, only a few basic commands are really needed for simple
+yet effective control of the development process:
+
+\begin{itemize}
+\item
+  adding new files to the repository (\verb!hg add!);
+
+\item
+  removing files from the repository (\verb!hg rm!);
+
+\item
+  checking the state of the repository (\verb!hg st!);
+
+\item
+  committing to the repository (\verb!hg ci -m "commit message"!);
+
+\item
+  pulling the changes from another repository / web web-based hosting
+  service\\
+  (\verb!hg pull https://user@bitbucket.org/owner/project!);
+
+\item
+  pushing the changes to another repository / web web-based hosting
+  service\\ (\verb!hg push /home/user/backups/currentproj!);
+
+\item
+  updating the files in the repository, especially after pulling from
+  another repo (\verb!hg update!);
+
+\end{itemize}
+Before that, you need either make a new repository (use
+\verb!hg init! command to initialize the repository) or
+\textbackslash{}textit\{clone\} an existing one
+(\verb!hg cone /home/user/projects/repo!).
+
+There are many web-based services for software projects that use
+version control systems; such web services can be used for
+synchronisation of repository by other researchers. As an example,
+\emph{www.bitbucket.org} can be mentioned for the Mercurial DVCS.
+
+\section{Branches in Mercurial}
+
+If you to develop a feature, but you don't want to see it in the
+mainline yet - you may want to make a branch. You can do a
+\href{http://stevelosh.com/blog/2009/08/a-guide-to-branching-in-mercurial/}{branch by just cloning the repository},
+but this is
+\href{http://solovyov.net/blog/2011/bzr-hate-and-hate/}{not a Bazaar}
+- Mercurial can do better.
+
+\subsection{Named branches in HG/Mercurial}
+
+Mercurial supports named branches so the branch name is a property
+of the changeset (see
+\href{http://mercurial.selenic.com/wiki/NamedBranches}{NamedBranches}).
+If no branch name was set, Mercurial assigns the branch name
+\textbf{``default''}.
+
+The command \textbf{\texttt{hg branches}} lists all branch names
+existing in a repository:
+
+\begin{quote}
+default 2635:e04d7f3658e1
+
+\end{quote}
+\begin{quote}
+wfs\_lenslets\_sim 2612:9b85ce2a4a39
+
+\end{quote}
+The command \textbf{\texttt{hg branch}} may be used to set a branch
+name, which will be used for subsequent commits:
+
+\begin{quote}
+hg branch am\_a\_new\_branch
+
+\end{quote}
+will start the new branch \verb!am_a_new_branch! and all the
+commits will be made in this new branch.
+\href{http://mercurial.selenic.com/wiki/Branch}{Mercurial branch name is an attribute associated with a changeset.}
+A new branch name can be started in the middle of a development
+line, not necessarily at a diverging point. For example:
+
+\begin{quote}
+hg branch branch--1 \# start a new branch name
+
+\end{quote}
+\begin{quote}
+\ldots{} modify something in the repository
+
+\end{quote}
+\begin{quote}
+hg commit -m ``branch--1'' \# the changeset has branch name
+``branch--1''
+
+\end{quote}
+\begin{quote}
+hg branch branch--2 \# start another branch name
+
+\end{quote}
+\begin{quote}
+\ldots{} modify something in the repository
+
+\end{quote}
+\begin{quote}
+hg commit -m ``branch--2'' \# the changeset has branch name
+``branch 2''
+
+\end{quote}
+\subsubsection{Find What Branch You're On}
+
+Calling hg branch without a name shows the current branch name of
+the working directory. Calling \verb!hg branch! after a
+\verb!hg init! outputs ``default'', the (reserved) name of the
+default branch:
+
+\begin{quote}
+hg init
+
+\end{quote}
+\begin{quote}
+hg branch
+
+\end{quote}
+\begin{quote}
+default
+
+\end{quote}
+\subsubsection{Create a Branch}
+
+To begin a new branch, set the branch name of the working directory
+and then commit it:
+
+\begin{quote}
+hg branch \emph{newfeature}
+
+\end{quote}
+\begin{quote}
+marked working directory as branch \emph{newfeature}
+
+\end{quote}
+\begin{quote}
+hg branch
+
+\end{quote}
+\begin{quote}
+\emph{newfeature}
+
+\end{quote}
+From this point on, all committed changesets will be associated
+with the supplied branch name \emph{newfeature}.
+
+\subsubsection{Create a Branch From an Older Revision}
+
+\href{http://stackoverflow.com/questions/13549931/create-a-new-branch-at-a-certain-revision}{To get named branch BRANCHNAME},
+update your working copy to the revision in question and then
+creating the new branch:
+
+\begin{quote}
+hg update -r 500
+
+\end{quote}
+\begin{quote}
+hg branch BRANCHNAME
+
+\end{quote}
+\begin{quote}
+hg commit -m `made a new branch from revision 500'
+
+\end{quote}
+Commit \emph{is a must}, because the branch will not exist in the
+repository until the next commit!
+
+\subsubsection{Switch Between Branches}
+
+Switch among branches using the \verb!hg update! command:
+
+\begin{quote}
+hg update -C main
+
+\end{quote}
+\begin{quote}
+hg update -C newfeature
+
+\end{quote}
+By providing a branch name, \verb!hg update! will update your
+working copy to the tip on this branch.
+
+\begin{quote}
+\textbf{Note: the -C option discards local changes, so be careful before using this option.}
+
+\end{quote}
+\subsubsection{Merge Branches}
+
+\href{http://stackoverflow.com/questions/3227988/closing-hg-branches}{I've finished working on a feature branch feature-x}.
+One way is to just leave merged feature branches open (and
+inactive):
+
+\begin{verbatim}
+hg up default
+hg merge feature-x
+hg ci -m merge
+\end{verbatim}
+This is simpler, but it leaves an open branch. If you want merge
+with \verb!default! \textbf{and close the branch}
+\verb!BRANCHNAME!, do the following:
+
+\begin{verbatim}
+   hg up BRANCHNAME
+   hg commit --close-branch -m "Closing the branch"
+   hg up default
+   hg merge BRANCHNAME
+\end{verbatim}
+If you just want to close the branch, do:
+
+\begin{verbatim}
+  hg commit --close-branch
+\end{verbatim}
+should be enough to mark a branch close. More in
+\href{http://stackoverflow.com/questions/2237222/how-to-correctly-close-a-feature-branch-in-mercurial?rq=1}{this excellent post}.
+
+Bookmarks vs Named branches
+
+Since Mercurial 1.8 \emph{bookmarks} have become a core feature of
+Mercurial. Bookmarks are more convenient for branching than named
+branches. See also this question:
+\href{http://stackoverflow.com/questions/1780778/mercurial-branching-and-bookmarks}{Mercurial branching and bookmarks}
+
+\href{http://stackoverflow.com/questions/1780778/mercurial-branching-and-bookmarks?lq=1}{Bookmarks are tags}
+that move forward automatically to subsequent changes, leaving no
+mark on the changesets that previously had that bookmark pointing
+toward them. Named branches, on the other hand, are indelible marks
+that are part of a changeset. Multiple heads can be on the same
+branch, but only one head at a time can be pointed to by the same
+bookmark. Named branches are pushed/pulled from repo to repo, and
+bookmarks don't travel.
+\href{http://stevelosh.com/blog/2009/08/a-guide-to-branching-in-mercurial/}{More info about \emph{concepts} behind Mercurial bookmarks and branches.}
+
+Is it possible to reopen a closed branch in Mercurial?
+
+\href{http://stackoverflow.com/questions/4099345/is-it-possible-to-reopen-a-closed-branch-in-mercurial}{Yes, sure.}
+You can just \verb!hg update! to the closed branch then do another
+\verb!hg commit! and it will automatically reopen.
+
+The \verb!closed! flag is just used to filter out closed branches
+from \verb!hg branches! and \verb!hg heads! unless you use the
+\verb!--closed! option - it doesn't prevent you from using the
+branches.
+
+Graphical view of commits and merges
+
+The \verb!hg serve! command that starts its own webserver:
+
+\begin{verbatim}
+hg serve
+listening at http://dot.dot:8000/ (bound to *:8000)
+\end{verbatim}
+That just point your favourite browser to
+\textbf{http://dot.dot:8000/} and we can see a web server for
+Mercurial!
+
+\subsubsection{Delete / Pruning branches}
+
+There are several ways of managing branches that you no longer plan
+on working with:
+
+\begin{enumerate}
+\item
+  Closing branches
+\item
+  No-Op Merges
+\item
+  Using clone
+\item
+  Using strip
+\end{enumerate}
+\href{http://mercurial.selenic.com/wiki/PruningDeadBranches}{More info about pruning the branches.}
+
+\subsection{How can I recover a removed file in Mercurial?}
+
+An
+\href{http://stackoverflow.com/questions/2175427/how-can-i-recover-a-removed-file-in-mercurial-if-at-all}{excellent question}
+indeed!
+\href{http://stackoverflow.com/a/3174414}{Here is the solution.}
+
+\textbf{First}, use
+
+\begin{quote}
+\verb!hg grep!
+
+\end{quote}
+to find the deleted file you wish to recover. The output of this
+command will show you the last revision for which the file was
+present, and the path to the deleted file. Or, if you know the name
+of the delete file you can find its revision easily with
+
+\begin{quote}
+\verb!hg log -r "removes('NAME.c')"!
+
+\end{quote}
+This will give you the revision in witch a file called NAME.c (in
+the root) is deleted.
+
+\textbf{Second}, run
+
+\begin{quote}
+\verb!hg revert -r <revision number> <path to deleted file>!
+
+\end{quote}
+The deleted file will now be in your working copy, ready to be
+committed back into head.
+
