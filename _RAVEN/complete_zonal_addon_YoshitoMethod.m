@@ -9,7 +9,20 @@
 % 6 = LQG Explicit
 % 7 = Yoshito method
 %**************************************************************************
-clear all
+
+
+strehl =
+
+    0.2559    0.2506    0.2646    0.2587    0.2882    0.2990    0.2539
+
+>> EE
+
+EE =
+
+    0.4852    0.4833    0.4938    0.4917    0.5143    0.5541    0.4850
+
+strehl
+
 %% Ensure the Raven-tailored OOMAO lib is used - **WITH MATLAB 2013 VERSION -- NOT 2015**
 %rmpath(genpath('/Users/ccorreia/Documents/LAM/Simulations/_lib_matlab/OOMAO-Feb2015/'))
 %rmpath(genpath('/Users/ccorreia/Documents/LAM/Simulations/OOMAO-Raven/'))

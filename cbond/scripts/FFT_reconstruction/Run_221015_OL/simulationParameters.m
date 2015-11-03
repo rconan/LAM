@@ -54,7 +54,7 @@ if exist('filename','var')
         atm = atmosphere(lambda_wfs,r0,L0,'altitude',altitude,...
             'fractionnalR0',fractionalR0,'windSpeed',windSpeed,'windDir',windDirection);
         phi = fourierPhaseScreen(atm,D,nPx,nLenslet,nScreens);
-        save(filename,'phi')
+        save(filename,'-v7.3','phi')
     else
         load(filename)
     end

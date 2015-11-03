@@ -20,8 +20,6 @@ nPxLens = nPx/nLenslet;
 % 1 layer atmosphere
 atm = atmosphere(photometry.V,r0,L0,'windSpeed',15,'windDir',0);
 
-nScreens = 1000;
-
 phi = fourierPhaseScreen(atm,D,nPx,nScreens);
 %phiLowRes = fourierPhaseScreen(atm,D,nPxLowRes);
 

@@ -29,7 +29,7 @@ tel = telescope(D,'resolution',nRes,...
     'obstructionRatio',obstructionRatio,'fieldOfViewInArcsec',fieldOfViewInArcsec,'samplingTime',1/samplingFreq);
 
 % cut off a portion of the pupil that is vignetted
-tel.pupil(35*nPx:42*nPx,1:7*nPx) = 0;
+%tel.pupil(35*nPx:42*nPx,1:7*nPx) = 0;
 
 telFull = telescope(D,'resolution',nRes,...
     'obstructionRatio',0.3,'fieldOfViewInArcsec',fieldOfViewInArcsec,'samplingTime',1/samplingFreq);
@@ -39,7 +39,8 @@ telMasked = telescope(D,'resolution',nRes,...
     'obstructionRatio',0.3,'fieldOfViewInArcsec',fieldOfViewInArcsec,'samplingTime',1/samplingFreq);
 
 % cut off a portion of the pupil that is vignetted
-telMasked.pupil(35*nPx:42*nPx,1:7*nPx) = 0;
+telMasked.pupil(37*nPx:40*nPx,1:3*nPx) = 0;
+%telMasked.pupil = tel.pupil;
 %% WAVE-FRONT SENSOR
 % <latex>
 % \subsubsection{The wavefront sensor}
@@ -141,6 +142,7 @@ telFull = telFull + atm;
 figure
 imagesc(tel)
 ngs = ngs.*tel*wfs;
+ngs = ngs.*tel*{telMasked.pupil, zeros(nRes)}*wfs;
 %% LOW-RES TELESCOPE TO ESTIMATE PHASE 
 
 telLowRes = telescope(tel.D,'resolution',nL+1,...
@@ -192,7 +194,14 @@ dm.coefs = zeros(dm.nValidActuator,1);
 %%
 
 science = science.*telFull*dm*cam;
-lgsAst = lgsAst.*tel*dm*wfs;
+
+% add noisy measurements
+wfs.camera.photonNoise = 1;
+wfs.camera.readOutNoise = 1;
+
+%lgsAst = lgsAst.*tel*{telMasked.pupil, zeros(nRes)}*wfs;
+lgsAst = lgsAst.*tel*{telMasked.pupil, zeros(nRes)}*dm*wfs;
+%lgsAst = lgsAst.*tel*dm*wfs;
 figure(31416)
 imagesc(cam,'parent',subplot(2,1,1))
 subplot(2,1,2)
@@ -201,6 +210,8 @@ axis xy equal tight
 colorbar
 wfs.camera.frameListener.Enabled = false;
 wfs.slopesListener.Enabled = false;
+
+
 %%
 flush(cam)
 cam.clockRate    = 1;

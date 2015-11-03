@@ -11,15 +11,16 @@
 
 clear all;
 
-filename = '~/Documents/MATLAB/FFT_reconstruction/testing/e2e/phaseCubes/Allphasecube.mat';
-basename = 'Run_211015';
+addpath ~/HarmoniSimuls/cbond/scripts/FFT_reconstruction/new_functions/
+filename = 'Allphasecube.mat';
+basename = 'Run_221015';
 
 % Variable parameters
 %--------------------------------------------------------------------------
 % TIMES
 % Camera exposure time (averaging time for psf, strehl etc.) and delay
 % This is in frames, to convert to time, * sampling time.
-exposureTime = 20;
+exposureTime = 2000;
 startDelay = 0;         
 nScreens = 2000;
 
@@ -28,7 +29,7 @@ photonNoise = true;
 readOutNoise = 2;
 % trying m=1!
 % RECONSTRUCTORs and relevant parameters
-sims = [4 7 10 13 17];%1:17;
+sims = 1:17;
 Nsims = 18;
 NFFTRsims = 15;
 Recon{1} = 'Direct';
