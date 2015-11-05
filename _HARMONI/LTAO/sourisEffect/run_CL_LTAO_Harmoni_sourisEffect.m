@@ -182,7 +182,7 @@ fprintf('Strehl ratio: %4.1f\n',cam.strehl)
 gain_cl  = 0.5;
 %% PSEUDO OPEN-LOOP CONTROLLER
 
-gain_pol = 0.7;
+gain_pol = 0.6;
 F = 2*bifaLowRes.modes(wfs.validActuator,:);
 iF = pinv(full(F),1e-1);
 
@@ -198,6 +198,7 @@ science = science.*telFull*dm*cam;
 % add noisy measurements
 wfs.camera.photonNoise = 1;
 wfs.camera.readOutNoise = 1;
+
 
 %lgsAst = lgsAst.*tel*{telMasked.pupil, zeros(nRes)}*wfs;
 lgsAst = lgsAst.*tel*{telMasked.pupil, zeros(nRes)}*dm*wfs;
