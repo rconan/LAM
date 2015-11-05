@@ -50,7 +50,7 @@ telMasked.pupil(37*nPx:40*nPx,1:3*nPx) = 0;
 % embedding a lenslet array (\oo{lensletArray}) class and a detector
 % (\oo{detector}) class in the \oo{shackHartmann} class. The
 % \oo{lensletArray} class perform the numerical Fraunhoffer propagation of
-% the wavefront to the detector. The \oo{detector} class implements a CCD
+% opethe wavefront to the detector. The \oo{detector} class implements a CCD
 % camera detection process including Poisson and read--out noise. The
 % lenslet images are Nyquist sampled per default.
 % \newline
