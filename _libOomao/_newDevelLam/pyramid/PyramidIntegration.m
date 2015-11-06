@@ -7,7 +7,7 @@
 clear all
 clc
 
-atm = atmosphere(photometry.V,1.5,30,...
+atm = atmosphere(photometry.V,.15,30,...
     'altitude',0,...
     'fractionnalR0',1,...
     'windSpeed',100,...
@@ -21,15 +21,22 @@ tel = telescope(3.6,...
     'samplingTime',1/100);
 
 %% Definition of a calibration source
-ngs = source('wavelength',photometry.J);
+ngs = source('wavelength',photometry.J); 
+
 ngs_sh = source('wavelength',photometry.J);
+%ngs_sh = source('asterism',{[2,arcsec(45),0]},'magnitude',10); 
+
 %% Definition of the wavefront sensor
 %Experimental Pyramid WFS, expect some rough edges and maybe some bugs
 %The pyramid takes only one argument, which is the pixel resolution of the
 %telescope it is associated with.
 wfs=pyramid(nPx);
+wfs.camera.readOutNoise = 1;
+
 nLenslet = 10;
 wfs_sh = shackHartmann(nLenslet,nPx,0.75);
+wfs_sh.camera.readOutNoise = 1;
+
 %%
 % Propagation of the calibration source to the WFS through the telescope
 ngs = ngs.*tel*wfs;
@@ -40,6 +47,7 @@ ngs_sh = ngs_sh.*tel*wfs_sh;
 %wfs.setmodulation(3)
 wfs.INIT
 wfs_sh.INIT
+
 %%
 % A new frame read-out and slopes computing:
 +wfs;
@@ -76,7 +84,7 @@ slopesDisplay(wfs_sh)
 
 %% 
 zer = zernike(3,tel.D, 'resolution', nPx);
-zer.c = 5;
+zer.c = 0.1/ngs.waveNumber;
 ngs = ngs.*tel*zer*wfs;
 ngs_sh = ngs_sh.*tel*zer*wfs_sh;
 

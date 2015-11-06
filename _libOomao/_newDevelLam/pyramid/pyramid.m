@@ -8,7 +8,7 @@ classdef pyramid < handle
     properties(GetAccess = 'public', SetAccess = 'private')
         alpha;%angle of incoming rays
         c;%The Nyquist sampling (which is 2 by default, in order to
-          %satisfy the Shanon’s condition). Does not semm to work if modified
+          %satisfy the Shanon???s condition). Does not semm to work if modified
           %from its default value.
         %TODO fix c
         isInitialized;
@@ -17,6 +17,7 @@ classdef pyramid < handle
         referenceSlopes;%the slopes of reference
         slopes;%the slopes as read by processing the sensor
         wave;%incoming wave, a square complex matrix
+        validSlopes; % logical index indicating the validSlopes
     end
     %%
     methods
@@ -28,6 +29,10 @@ classdef pyramid < handle
             pwfs.c=2;
             pwfs.camera=detector(2*pwfs.c*floor(resolution));
             pwfs.isInitialized=false;
+            
+            validSlopesMap = logical(padarray(utilities.piston(resolution/2), [resolution/4 resolution/4], 'both'));
+            pwfs.validSlopes = [validSlopesMap validSlopesMap];
+
         end
         
         
@@ -176,11 +181,14 @@ classdef pyramid < handle
             ie = xc;
             I4 = I4Q(is:ie,js:je);
             
+
             I = (I1+I2+I3+I4);
+            I = sum(I(pwfs.validSlopes(:,1:end/2)))*ones(size(I));
             Sy = (I1-I2+I4-I3)./I;
             Sx = (I1-I4+I2-I3)./I;
             pwfs.referenceSlopes=[Sx,Sy];
             pwfs.isInitialized = true;
+            
         end         
         
         function uplus(pwfs)
@@ -214,7 +222,8 @@ classdef pyramid < handle
             ie = xc;
             I4 = I4Q(is:ie,js:je);
             
-            I = (I1+I2+I3+I4);
+            I = (I1+I2+I3+I4); 
+            I = sum(I(:))*ones(size(I));
             Sy = (I1-I2+I4-I3)./I;
             Sx = (I1-I4+I2-I3)./I;
             if pwfs.isInitialized == true
@@ -231,8 +240,8 @@ classdef pyramid < handle
         function hilbertSlopes(pwfs,telescope,source)
             P=telescope.pupil;
             phi=angle(source.wave);
-            %            Sx = −PHx (Pφ) + PφHx (P) − Hxy (P)Hy (Pφ) + Hxy (Pφ)Hy (P),
-            %            Sy = −PHy (Pφ) + PφHy (P) − Hxy (P)Hx (Pφ) + Hxy (Pφ)Hx (P).
+            %            Sx = ???PHx (P??) + P??Hx (P) ??? Hxy (P)Hy (P??) + Hxy (P??)Hy (P),
+            %            Sy = ???PHy (P??) + P??Hy (P) ??? Hxy (P)Hx (P??) + Hxy (P??)Hx (P).
             %            Sx = -P*imag(hilbert(P*phi)) + P*phi*imag(hilbert(P)) - imag(hilbert(imag(hilbert(transpose(P)))))*imag(hilbert(transpose(P*phi))) + imag(hilbert(imag(hilbert(transpose(P*phi)))))*imag(hilbert(transpose(P))) ;
             %            Sy = -P*imag(hilbert(transpose(P*phi))) + P*phi*imag(hilbert(transpose(P))) - imag(hilbert(imag(hilbert(transpose(P)))))*imag(hilbert(P*phi)) + imag(hilbert(imag(hilbert(transpose(P*phi)))))*imag(hilbert(P)) ;
             %Sx = -P.*imag(hilbert(P.*phi)) + P.*phi.*imag(hilbert(P)) - imag(hilbert(transpose(imag(hilbert(P))))).*imag(hilbert(transpose(P.*phi))) + imag(hilbert(transpose(imag(hilbert(P.*phi))))).*imag(hilbert(transpose(P))) ;

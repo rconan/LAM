@@ -40,7 +40,7 @@ telMasked = telescope(D,'resolution',nRes,...
     'obstructionRatio',0.3,'fieldOfViewInArcsec',fieldOfViewInArcsec,'samplingTime',1/samplingFreq);
 
 % cut off a portion of the pupil that is vignetted
-telMasked.pupil(35*nPx:42*nPx,1:7*nPx) = 0;
+%telMasked.pupil(35*nPx:42*nPx,1:7*nPx) = 0;
 
 pupilsVignetted{1} = telMasked.pupil;% telMasked.pupil;
 pupilsVignetted{2} = pupilsVignetted{1}(:,end:-1:1);
@@ -86,16 +86,15 @@ wfsCal.INIT
 
 %
 nGs = 4;
-nGs = 4;
 for iGs = 1:nGs
-wfs(iGs) = shackHartmann(nL,nRes,0.85);
-
-% WFS initialisation
-ngs = ngs.*tel*wfs(iGs);
-
-wfs(iGs).INIT
-
-+wfs(iGs);
+    wfs(iGs) = shackHartmann(nL,nRes,0.85);
+    
+    % WFS initialisation
+    ngs = ngs.*tel*wfs(iGs);
+    
+    wfs(iGs).INIT
+    
+    +wfs(iGs);
 end
 
 figure
@@ -140,7 +139,7 @@ slopesLinCoef = polyfit(Ox_in,Ox_out,1);
 wfsCal.slopesUnits = 1/slopesLinCoef(1);
 
 for iGs = 1:nGs
-wfs(iGs).slopesUnits = 1/slopesLinCoef(1);
+    wfs(iGs).slopesUnits = 1/slopesLinCoef(1);
 end
 ngs.zenith = 0;
 wfsCal.pointingDirection = [];
@@ -231,7 +230,7 @@ dm.coefs = zeros(dm.nValidActuator,1);
 science = science.*telFull*dm*cam;
 %lgsAst = lgsAst.*tel*dm*wfs;
 for iGS=1:nGs
-lgsAst(iGs) = lgsAst(iGs).*tel*{pupilsVignetted{iGs},0*pupilsVignetted{iGs}}*dm*wfs(iGs);
+lgsAst(iGs) = lgsAst(iGs).*tel*{pupilsVignetted{iGs},zeros(nRes)}*dm*wfs(iGs);
 end
 figure(31416)
 imagesc(cam,'parent',subplot(2,1,1))
@@ -263,7 +262,7 @@ for k=1:cam.startDelay + cam.exposureTime
     +tel;
     %+lgsAst;
     for iGs=1:nGs
-        lgsAst(iGs) = lgsAst(iGs).*tel*{pupilsVignetted{iGs},0*pupilsVignetted{iGs}}*dm*wfs(iGs);
+        lgsAst(iGs) = lgsAst(iGs).*tel*{pupilsVignetted{iGs},zeros(nRes)}*dm*wfs(iGs);
         slopesk(:,iGs) = wfs(iGs).slopes;
     end
     +science;
