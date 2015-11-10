@@ -40,7 +40,7 @@ telMasked = telescope(D,'resolution',nRes,...
     'obstructionRatio',0.3,'fieldOfViewInArcsec',fieldOfViewInArcsec,'samplingTime',1/samplingFreq);
 
 % cut off a portion of the pupil that is vignetted
-%telMasked.pupil(35*nPx:42*nPx,1:7*nPx) = 0;
+telMasked.pupil(35*nPx:42*nPx,1:7*nPx) = 0;
 
 pupilsVignetted{1} = telMasked.pupil;% telMasked.pupil;
 pupilsVignetted{2} = pupilsVignetted{1}(:,end:-1:1);
@@ -48,9 +48,9 @@ pupilsVignetted{3} = pupilsVignetted{1}';
 pupilsVignetted{4} = pupilsVignetted{2}';
 
 
-pupilsVignetted{2} = pupilsVignetted{1};
-pupilsVignetted{3} = pupilsVignetted{1};
-pupilsVignetted{4} = pupilsVignetted{1};
+%pupilsVignetted{2} = pupilsVignetted{1};
+%pupilsVignetted{3} = pupilsVignetted{1};
+%pupilsVignetted{4} = pupilsVignetted{1};
 
 
 
@@ -243,9 +243,9 @@ wfsCal.slopesListener.Enabled = false;
 %%
 flush(cam)
 cam.clockRate    = 1;
-exposureTime     = 100;
+exposureTime     = 1000;
 cam.exposureTime = exposureTime;
-startDelay       = 20
+startDelay       = 200
 flush(cam)
 cam.startDelay = startDelay;
 set(science,'logging',true)
