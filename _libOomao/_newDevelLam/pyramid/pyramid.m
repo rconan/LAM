@@ -1,23 +1,26 @@
-classdef pyramid < handle
+classdef pyramid < hgsetget %handle
     %pyramid
     %A class that implements a Pyramid WFS
     %% 
     properties
-        camera;%the detector used in the end of the chain
+        camera;                 %the detector used in the end of the chain
     end
     properties(GetAccess = 'public', SetAccess = 'private')
-        alpha;%angle of incoming rays
-        c;%The Nyquist sampling (which is 2 by default, in order to
-          %satisfy the Shanon???s condition). Does not semm to work if modified
-          %from its default value.
-        %TODO fix c
+        alpha;                  %angle of incoming rays
+        c;                      %The Nyquist sampling (which is 2 by default, in order to
+                                %satisfy the Shannon's condition). Does not seem to work if modified
+                                %from its default value.
+                                %TODO fix c
         isInitialized;
-        lightmap;%map of the light passed through the pyramid
-        modulation;%amplitude of the modulation, a decimal number
-        referenceSlopes;%the slopes of reference
-        slopes;%the slopes as read by processing the sensor
-        wave;%incoming wave, a square complex matrix
-        validSlopes; % logical index indicating the validSlopes
+        lightmap;               %map of the light passed through the pyramid
+        modulation;             %amplitude of the modulation, a decimal number
+        referenceSlopes;        %the slopes vector of reference
+        referenceSlopesMap;     %the slopes map of reference
+        slopes;                 %the slopes as read by processing the sensor
+        slopesMap;              %the slopes as read by processing the sensor
+        wave;                   %incoming wave, a square complex matrix
+        validSlopes;            % logical index indicating the validSlopes
+        validIntensityPupil;    % logical index indicating the validIntensityPupil
     end
     %%
     methods
@@ -29,9 +32,9 @@ classdef pyramid < handle
             pwfs.c=2;
             pwfs.camera=detector(2*pwfs.c*floor(resolution));
             pwfs.isInitialized=false;
-            
-            validSlopesMap = logical(padarray(utilities.piston(resolution/2), [resolution/4 resolution/4], 'both'));
-            pwfs.validSlopes = [validSlopesMap validSlopesMap];
+                       
+            pwfs.validIntensityPupil = utilities.piston(resolution,resolution*pwfs.c,'type','logical');
+            pwfs.validSlopes = [pwfs.validIntensityPupil pwfs.validIntensityPupil];
 
         end
         
@@ -181,12 +184,10 @@ classdef pyramid < handle
             ie = xc;
             I4 = I4Q(is:ie,js:je);
             
-
-            I = (I1+I2+I3+I4);
-            I = sum(I(pwfs.validSlopes(:,1:end/2)))*ones(size(I));
-            Sy = (I1-I2+I4-I3)./I;
-            Sx = (I1-I4+I2-I3)./I;
-            pwfs.referenceSlopes=[Sx,Sy];
+            computeSlopes(pwfs, I1, I2, I3, I4);
+            pwfs.referenceSlopesMap = pwfs.slopesMap;
+            pwfs.referenceSlopes = pwfs.slopes;  
+            
             pwfs.isInitialized = true;
             
         end         
@@ -222,21 +223,32 @@ classdef pyramid < handle
             ie = xc;
             I4 = I4Q(is:ie,js:je);
             
-            I = (I1+I2+I3+I4); 
-            I = sum(I(:))*ones(size(I));
-            Sy = (I1-I2+I4-I3)./I;
-            Sx = (I1-I4+I2-I3)./I;
-            if pwfs.isInitialized == true
-                pwfs.slopes=[Sx,Sy]-pwfs.referenceSlopes;
-            else
-                pwfs.slopes=[Sx,Sy];
-            end
+            computeSlopes(pwfs, I1, I2, I3, I4);
+    
         end
         
         function slopesDisplay(pwfs)
-            imagesc(pwfs.slopes);
+            imagesc(pwfs.slopesMap.*pwfs.validSlopes);
         end
         
+        function computeSlopes(pwfs, I1, I2, I3, I4)
+            % normalisation options
+            %    1) normalisation pixxel-wise by the intensity
+            I = (I1+I2+I3+I4);      %
+            %    2) normalisation by the integrated flux
+            I = sum(I(pwfs.validIntensityPupil))*ones(size(I));
+            
+            SyMap = (I1-I2+I4-I3)./I;
+            SxMap = (I1-I4+I2-I3)./I;
+            if pwfs.isInitialized == true
+                pwfs.slopesMap=[SxMap,SyMap]-pwfs.referenceSlopesMap;
+            else
+                pwfs.slopesMap=[SxMap,SyMap];
+            end
+            pwfs.slopes = pwfs.slopesMap(pwfs.validSlopes);
+        end
+        
+            
         function hilbertSlopes(pwfs,telescope,source)
             P=telescope.pupil;
             phi=angle(source.wave);
