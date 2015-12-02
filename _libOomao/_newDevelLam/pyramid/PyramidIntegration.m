@@ -5,7 +5,8 @@
 %%
 %close all
 clear all
-clc
+clc 
+close all
 
 %%
 atm = atmosphere(photometry.V,.15,30,...
