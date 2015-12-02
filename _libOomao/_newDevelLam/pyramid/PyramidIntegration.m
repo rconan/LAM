@@ -31,8 +31,8 @@ ngs_sh = source('wavelength',photometry.J);
 %Experimental Pyramid WFS, expect some rough edges and maybe some bugs
 %The pyramid takes only one argument, which is the pixel resolution of the
 %telescope it is associated with.
-wfs=pyramid(nPx);
-wfs.camera.readOutNoise = 1;
+pyr=pyramid(nPx);
+pyr.camera.readOutNoise = 0;
 
 nLenslet = 10;
 wfs_sh = shackHartmann(nLenslet,nPx,0.75);
@@ -40,29 +40,29 @@ wfs_sh.camera.readOutNoise = 1;
 
 %%
 % Propagation of the calibration source to the WFS through the telescope
-ngs = ngs.*tel*wfs;
+ngs = ngs.*tel*pyr;
 ngs_sh = ngs_sh.*tel*wfs_sh;
 
 %%
 %Calibration of the sensor on the current light
 %wfs.setmodulation(3)
-wfs.INIT
+pyr.INIT
 wfs_sh.INIT
 
 %%
 % A new frame read-out and slopes computing:
-+wfs;
++pyr;
 +wfs_sh;
 %%
 % The WFS camera display:
 figure(1)
-imagesc(wfs.camera)
+imagesc(pyr.camera)
 figure(2)
 imagesc(wfs_sh.camera)
 %%
 % The WFS slopes display:
 figure(3)
-slopesDisplay(wfs)
+slopesDisplay(pyr)
 figure(4)
 slopesDisplay(wfs_sh)
 
@@ -86,26 +86,38 @@ slopesDisplay(wfs_sh)
 %% 
 zer = zernike(3,tel.D, 'resolution', nPx);
 zer.c = 0.1/ngs.waveNumber;
-ngs = ngs.*tel*zer*wfs;
+ngs = ngs.*tel*zer*pyr;
 ngs_sh = ngs_sh.*tel*zer*wfs_sh;
 
 % A new frame read-out and slopes computing:
-+wfs;
++pyr;
 +wfs_sh;
 
 %%
 % The WFS camera display:
 figure(1)
-imagesc(wfs.camera)
+imagesc(pyr.camera)
 figure(2)
 imagesc(wfs_sh.camera)
 %%
 % The WFS slopes display:
 figure(3)
-slopesDisplay(wfs)
+slopesDisplay(pyr)
 figure(4)
 slopesDisplay(wfs_sh)
 % 
 % wfs.hilbertSlopes(tel,ngs)
 % figure(5)
 % slopesDisplay(wfs)
+
+%% Calibration
+for i = 1:20
+    zer.c = (i-10)*0.1/ngs.waveNumber;
+    ngs = ngs.*tel*zer*pyr;
+    sx(i) = mean(pyr.slopes(1:end/2));
+    sy(i) = mean(pyr.slopes(end/2+1:end));
+end
+syTh = 4*([1:20]-10)*0.1/ngs.waveNumber;
+figure,hold
+plot(syTh, sy,'o')
+plot(syTh, syTh)
