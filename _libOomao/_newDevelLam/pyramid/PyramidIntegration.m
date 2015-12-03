@@ -16,7 +16,7 @@ atm = atmosphere(photometry.V,.15,30,...
     'windDirection',0);
 
 %% Definition of the telescope
-nPx = 60;
+nPx = 60*2;
 tel = telescope(3.6,...
     'fieldOfViewInArcMin',2.5,...
     'resolution',nPx,...
@@ -33,8 +33,12 @@ ngs_sh = source('wavelength',photometry.J);
 %The pyramid takes only one argument, which is the pixel resolution of the
 %telescope it is associated with.
 pyr=pyramid(nPx);
+%pyr.binning = 2;
+%pyr.modulation = 2;
+
 pyr.camera.readOutNoise = 0;
 
+%%
 nLenslet = 10;
 wfs_sh = shackHartmann(nLenslet,nPx,0.75);
 wfs_sh.camera.readOutNoise = 1;
@@ -111,14 +115,63 @@ slopesDisplay(wfs_sh)
 % figure(5)
 % slopesDisplay(wfs)
 
-%% Calibration
+%% Gain Calibration
 for i = 1:20
     zer.c = (i-10)*0.1/ngs.waveNumber;
     ngs = ngs.*tel*zer*pyr;
     sx(i) = mean(pyr.slopes(1:end/2));
     sy(i) = mean(pyr.slopes(end/2+1:end));
 end
-syTh = 4*([1:20]-10)*0.1/ngs.waveNumber;
+syTh = 4*([1:20]-10)*0.1;%/ngs.waveNumber;
 figure,hold
 plot(syTh, sy,'o')
 plot(syTh, syTh)
+
+%% Poke matrix
+bifa = influenceFunction('monotonic',0.4);
+
+dm = deformableMirror(nLenslet+1,'modes',bifa,...
+    'resolution',tel.resolution,...
+    'validActuator',wfs_sh.validActuator);
+
+
+%ngs = ngs.*tel;
+%calibDm = calibration(dm,pyr,ngs,ngs.wavelength,nLenslet+1,'cond',1e2);
+
+
+pyr.binning = 2;
+ngs = ngs.*tel*pyr;
+pyr.INIT
+
+
+% brute-force approach
+ngs = ngs.*tel*dm*pyr;
+for iAct = 1:dm.nValidActuator
+    c = zeros(dm.nValidActuator,1);
+    c(iAct) = 1e-6;
+    dm.coefs = c;
+    +ngs;
+    pokeMatrix(iAct,:) = pyr.slopes;
+end
+
+% modal interaction matrix
+zer = zernike(2:500,tel.D, 'resolution', nPx);
+ngs = ngs.*tel*zer*pyr;
+pokeModalMatrix = [];
+for kZer=1:zer.nMode
+    kZer;
+    c = zeros(zer.nMode,1);
+    c(kZer) = 10e-9;
+    zer.c = c;
+    +ngs;
+    pokeModalMatrix(:,kZer) = pyr.slopes;
+end
+loglog(diag(pokeModalMatrix'*pokeModalMatrix))
+hold on
+
+% SH modal interaction matrix
+zer.c = eye(zer.nMode)*1e-10;%/ngs.waveNumber;
+ngs = ngs.*tel*zer*wfs_sh;
+pokeModalMatrixSh = wfs_sh.slopes;
+loglog(diag(pokeModalMatrixSh'*pokeModalMatrixSh)*1e-10,'r')
+
