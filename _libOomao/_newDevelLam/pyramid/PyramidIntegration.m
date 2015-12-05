@@ -33,10 +33,11 @@ ngs_sh = source('wavelength',photometry.J);
 %The pyramid takes only one argument, which is the pixel resolution of the
 %telescope it is associated with.
 pyr=pyramid(nPx);
-%pyr.binning = 2;
-%pyr.modulation = 2;
-
+pyr.binning = 1;
+pyr.modulation = 2; % default = 0
+%pyr.multNyqSamp = 2; % default = 2;
 pyr.camera.readOutNoise = 0;
+
 
 %%
 nLenslet = 10;
@@ -166,6 +167,7 @@ for kZer=1:zer.nMode
     +ngs;
     pokeModalMatrix(:,kZer) = pyr.slopes;
 end
+figure
 loglog(diag(pokeModalMatrix'*pokeModalMatrix))
 hold on
 
@@ -173,5 +175,8 @@ hold on
 zer.c = eye(zer.nMode)*1e-10;%/ngs.waveNumber;
 ngs = ngs.*tel*zer*wfs_sh;
 pokeModalMatrixSh = wfs_sh.slopes;
-loglog(diag(pokeModalMatrixSh'*pokeModalMatrixSh)*1e-10,'r')
+loglog(diag(pokeModalMatrixSh'*pokeModalMatrixSh),'r')
+hold on
 
+%ipokeModalMatrixSh = pinv(pokeModalMatrixSh);
+%loglog(diag(ipokeModalMatrixSh*ipokeModalMatrixSh'),'k--')

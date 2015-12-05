@@ -25,15 +25,16 @@ classdef pyramid < handle
     
     properties (Dependent)
         alpha;                  %angle of incoming rays
-        c;                      %The Nyquist sampling (which is 2 by default, in order to
+        multNyqSamp;            %Multiplicative term of the Nyquist sampling (which is 2 by default). With  multNyqSamp = 2 (default) the quadrants are spread by a factor 2. End result :: multNyqSamp=2 -> 4pixels across \lambda/D
         binning;                % binning factor, default 1
     end
     
     properties (Access=private)
         p_alpha;
-        p_c;
+        p_multNyqSamp;
         p_binning = 1;          % binning factor, default 1
         isInitialized;
+        u;
     end
     
     %%
@@ -44,12 +45,13 @@ classdef pyramid < handle
             pwfs.modulation = 0;
             pwfs.wave=ones(floor(resolution));
             pwfs.p_alpha=pi/2;
-            pwfs.p_c=2;
-            pwfs.camera=detector(2*pwfs.c*floor(resolution));
+            pwfs.p_multNyqSamp=2;
+            pwfs.camera=detector(2*pwfs.multNyqSamp*floor(resolution));
             pwfs.isInitialized=false;
-            pwfs.validIntensityPupil = utilities.piston(resolution,resolution*pwfs.c,'type','logical');
+            pwfs.validIntensityPupil = utilities.piston(resolution,resolution*pwfs.multNyqSamp,'type','logical');
             pwfs.validSlopes = [pwfs.validIntensityPupil pwfs.validIntensityPupil];
             
+            pwfs.u = 1+pwfs.resolution*(2*pwfs.multNyqSamp-1)/2:pwfs.resolution*(2*pwfs.multNyqSamp+1)/2;
             pwfs.camera.frameGrabber=pwfs; %
             makePyrMask(pwfs)
         end
@@ -95,13 +97,19 @@ classdef pyramid < handle
             makePyrMask(pwfs);
         end
         
-        % setget c
-        function out = get.c(pwfs)
-            out = pwfs.p_c;
+        % setget multNyqSamp
+        function out = get.multNyqSamp(pwfs)
+            out = pwfs.p_multNyqSamp;
         end
-        function set.c(pwfs,val)
-            pwfs.p_c = val;
+        function set.multNyqSamp(pwfs,val)
+            pwfs.p_multNyqSamp = val;
+            pwfs.u = 1+pwfs.resolution*(2*pwfs.multNyqSamp-1)/2:pwfs.resolution*(2*pwfs.multNyqSamp+1)/2;
+
             makePyrMask(pwfs);
+            
+            pwfs.validIntensityPupil = utilities.piston(pwfs.resolution/pwfs.binning,pwfs.resolution*pwfs.multNyqSamp/pwfs.binning,'type','logical');
+            pwfs.validSlopes = [pwfs.validIntensityPupil pwfs.validIntensityPupil];
+            
         end
         
         % setget binning
@@ -112,9 +120,9 @@ classdef pyramid < handle
             pwfs.p_binning = val;
             pwfs.isInitialized = false;
             
-            pwfs.validIntensityPupil = utilities.piston(pwfs.resolution/pwfs.binning,pwfs.resolution*pwfs.c/pwfs.binning,'type','logical');
+            pwfs.validIntensityPupil = utilities.piston(pwfs.resolution/pwfs.binning,pwfs.resolution*pwfs.multNyqSamp/pwfs.binning,'type','logical');
             pwfs.validSlopes = [pwfs.validIntensityPupil pwfs.validIntensityPupil];
-
+            
         end
         
         
@@ -167,11 +175,11 @@ classdef pyramid < handle
             if ~pwfs.isInitialized
                 makePyrMask(pwfs)
             end
-            n = length(pwfs.wave);
-            px_side  = length(pwfs.wave)*2*pwfs.c;
+            %n = length(pwfs.wave);
+            px_side  = pwfs.resolution*2*pwfs.multNyqSamp;
             q = zeros(px_side);
-            u = 1+n*(2*pwfs.c-1)/2:n*(2*pwfs.c+1)/2;
-            q(u,u) = pwfs.wave;
+            %u = 1+n*(2*pwfs.multNyqSamp-1)/2:n*(2*pwfs.multNyqSamp+1)/2;
+            q(pwfs.u,pwfs.u) = pwfs.wave;
             
             
             I4Q = abs(fft2(fft2(q).*fftshift(pwfs.pyrMask))).^2;
@@ -213,7 +221,7 @@ classdef pyramid < handle
         
         %% make the pyramid phase mask
         function makePyrMask(pwfs)
-            px_side  = length(pwfs.wave)*2*pwfs.c;
+            px_side  = length(pwfs.wave)*2*pwfs.multNyqSamp;
             
             
             [fx,fy] = freqspace(px_side,'meshgrid');
@@ -281,8 +289,8 @@ classdef pyramid < handle
             px_side  = length(pwfs.camera.frame);
             
             I4Q=utilities.binning(pwfs.camera.frame,[px_side px_side]/pwfs.binning);             % binning
-
-            half = floor(px_side/2/pwfs.binning);
+            
+            half = floor(px_side/pwfs.multNyqSamp/pwfs.binning);
             xc = half+1;
             
             is = xc-half+1;
@@ -302,7 +310,7 @@ classdef pyramid < handle
             ie = xc;
             I4 = I4Q(is:ie,js:je);
             
-
+            
             computeSlopes(pwfs, I1, I2, I3, I4);
         end
         
