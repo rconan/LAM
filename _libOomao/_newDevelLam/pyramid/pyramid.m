@@ -206,7 +206,6 @@ classdef pyramid < handle
                         bsxfun(@times,...
                         fft2(bsxfun(@times, q, fftPhasor)), pwfs.pyrMask))).^2;
                     
-                    
                     %I4Q(:,:,kTheta) = fft2(fft2(q.*fftPhasor).*fpym);
                     %imagesc(fftshift(abs(fft2(q.*fftPhasor))))
                     %drawnow

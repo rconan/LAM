@@ -160,11 +160,13 @@ zer = zernike(2:500,tel.D, 'resolution', nPx);
 ngs = ngs.*tel*zer*pyr;
 pokeModalMatrix = [];
 for kZer=1:zer.nMode
-    kZer;
+    kZer
     c = zeros(zer.nMode,1);
     c(kZer) = 10e-9;
     zer.c = c;
+    tic
     +ngs;
+    toc
     pokeModalMatrix(:,kZer) = pyr.slopes;
 end
 figure
@@ -173,7 +175,9 @@ hold on
 
 % SH modal interaction matrix
 zer.c = eye(zer.nMode)*1e-10;%/ngs.waveNumber;
+tic,
 ngs = ngs.*tel*zer*wfs_sh;
+toc
 pokeModalMatrixSh = wfs_sh.slopes;
 loglog(diag(pokeModalMatrixSh'*pokeModalMatrixSh),'r')
 hold on
