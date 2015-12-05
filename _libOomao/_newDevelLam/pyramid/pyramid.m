@@ -177,12 +177,14 @@ classdef pyramid < handle
             end
             %n = length(pwfs.wave);
             px_side  = pwfs.resolution*2*pwfs.multNyqSamp;
-            q = zeros(px_side);
+            nPhase = size(pwfs.wave,3);
+            q = zeros(px_side, px_side, nPhase);
             %u = 1+n*(2*pwfs.multNyqSamp-1)/2:n*(2*pwfs.multNyqSamp+1)/2;
-            q(pwfs.u,pwfs.u) = pwfs.wave;
+            q(pwfs.u,pwfs.u,:) = pwfs.wave;
             
             
-            I4Q = abs(fft2(fft2(q).*fftshift(pwfs.pyrMask))).^2;
+            %I4Q = abs(fft2(fft2(q).*fftshift(pwfs.pyrMask))).^2;
+            I4Q = abs(fft2(bsxfun(@times, fft2(q), pwfs.pyrMask))).^2;
             
             %             figure()
             %             h = imagesc(I4Q);
@@ -194,12 +196,16 @@ classdef pyramid < handle
                 [u,v] = ndgrid((0:(px_side-1))./px_side);
                 [o,r] = cart2pol(u,v);
                 nTheta = round(4*pi*pwfs.modulation);
-                I4Q = zeros(px_side,px_side,nTheta); %
-                fpym = fftshift(pwfs.pyrMask);
+                I4Q = zeros(px_side,px_side,nPhase, nTheta); %
+                %fpym = fftshift(pwfs.pyrMask);
                 for kTheta = 1:nTheta
                     theta = (kTheta-1)*2*pi/nTheta;
                     fftPhasor = exp(-1i.*pi.*8*pwfs.modulation*r.*cos(o+theta));
-                    I4Q(:,:,kTheta) = abs(fft2(fft2(q.*fftPhasor).*fpym)).^2;
+                    %I4Q(:,:,:, kTheta) = abs(fft2(fft2(q.*fftPhasor).*pwfs.pyrMask)).^2;
+                    I4Q(:,:,:, kTheta) = abs(fft2(...
+                        bsxfun(@times,...
+                        fft2(bsxfun(@times, q, fftPhasor)), pwfs.pyrMask))).^2;
+                    
                     
                     %I4Q(:,:,kTheta) = fft2(fft2(q.*fftPhasor).*fpym);
                     %imagesc(fftshift(abs(fft2(q.*fftPhasor))))
@@ -208,7 +214,7 @@ classdef pyramid < handle
                     %         set(h,'Cdata',I4Q(:,:,kTheta))
                     %         drawnow
                 end
-                I4Q = sum(I4Q,3);
+                I4Q = sum(I4Q,4);
                 
                 %fftPhasor = 2./(pwfs.modulation*r).*(cos(pi*pwfs.modulation*r) + sin(pi*pwfs.modulation*r));
                 %fftPhasor(isinf(fftPhasor)) = pwfs.modulation;
@@ -245,7 +251,7 @@ classdef pyramid < handle
             mask  = heaviside(-fx).*heaviside(fy);
             phase = -pwfs.alpha.*(-fx+fy);
             pym   = pym + mask.*exp(1i.*phase);
-            pwfs.pyrMask   = pym./sum(abs(pym(:)));
+            pwfs.pyrMask   = fftshift(pym./sum(abs(pym(:))));
         end
         
         %%
@@ -297,18 +303,18 @@ classdef pyramid < handle
             ie = xc;
             js = xc-half+1;
             je = xc;
-            I1 = I4Q(is:ie,js:je);
+            I1 = I4Q(is:ie,js:je,:);
             is = xc;
             ie = xc+half-1;
-            I2 = I4Q(is:ie,js:je);
+            I2 = I4Q(is:ie,js:je,:);
             is = xc;
             ie = xc+half-1;
             js = xc;
             je = xc+half-1;
-            I3 = I4Q(is:ie,js:je);
+            I3 = I4Q(is:ie,js:je,:);
             is = xc-half+1;
             ie = xc;
-            I4 = I4Q(is:ie,js:je);
+            I4 = I4Q(is:ie,js:je,:);
             
             
             computeSlopes(pwfs, I1, I2, I3, I4);
@@ -317,20 +323,27 @@ classdef pyramid < handle
         %% Compute slopes from 4 intensity maps
         function computeSlopes(pwfs, I1, I2, I3, I4)
             
+            nPhase = size(I1,3);
             % normalisation options
-            %    1) normalisation pixxel-wise by the intensity
+            %    1) normalisation pixel-wise by the intensity
             I = (I1+I2+I3+I4);      %
             %    2) normalisation by the integrated flux
-            I = sum(I(pwfs.validIntensityPupil))*ones(size(I));
+            I2D = utilities.toggleFrame(I,2);
+            I = sum(I2D(pwfs.validIntensityPupil))*ones(size(I));
             
             SyMap = (I1-I2+I4-I3)./I;
             SxMap = (I1-I4+I2-I3)./I;
             if pwfs.isInitialized == true
-                pwfs.slopesMap=[SxMap,SyMap]-pwfs.referenceSlopesMap;
+                pwfs.slopesMap=bsxfun(@minus, [SxMap,SyMap], pwfs.referenceSlopesMap);
             else
                 pwfs.slopesMap=[SxMap,SyMap];
             end
-            pwfs.slopes = pwfs.slopesMap(pwfs.validSlopes)*pwfs.slopesUnits;
+            
+            pwfs.slopes = [];
+            for kPhase = 1:nPhase
+                kPhaseMapSlopes = pwfs.slopesMap(:,:,kPhase);
+                pwfs.slopes(:,kPhase) = kPhaseMapSlopes(pwfs.validSlopes)*pwfs.slopesUnits;
+            end
         end
         
         %% gain calibration
