@@ -10,7 +10,8 @@ classdef pyramid < handle
         %TODO fix c
         modulation;             %amplitude of the modulation in \lambda/D units, a decimal number
         referenceSlopes;        %the slopes vector of reference
-        referenceSlopesMap;     %the slopes map of reference
+        referenceSlopesMap;     %the slopes map of referencea
+        tag = 'PYRAMID';
     end
     properties(GetAccess = 'public', SetAccess = 'private')
         lightMap;               %map of the light passed through the pyramid
@@ -38,6 +39,7 @@ classdef pyramid < handle
         p_c;
         p_binning = 1;          % binning factor, default 1
         isInitialized;
+        log;
     end
     
     %%
@@ -63,35 +65,15 @@ classdef pyramid < handle
             
             pwfs.camera.frameGrabber=pwfs; %
             makePyrMask(pwfs)
+            pwfs.log = logBook.checkIn(pwfs);
         end
         
         %% Destructor
         function delete(pwfs)
-            %             if isvalid(obj.slopesListener)
-            %                 delete(obj.slopesListener)
-            %             end
-            %             if isvalid(obj.intensityListener)
-            %                 delete(obj.intensityListener)
-            %             end
-            %             if isvalid(obj.paceMaker)
-            %                 if strcmp(obj.paceMaker.Running,'on')
-            %                     stop(obj.paceMaker)
-            %                 end
-            %                 delete(obj.paceMaker)
-            %             end
-            %             if ishandle(pwfs.slopesDisplayHandle)
-            %                 delete(pwfs.slopesDisplayHandle)
-            %             end
-            %             if ishandle(pwfs.intensityDisplayHandle)
-            %                 delete(pwfs.intensityDisplayHandle)
-            %             end
-            
             if isvalid(pwfs.camera)
                 delete(pwfs.camera)
             end
-            if ~isempty(pwfs.log)
-                checkOut(pwfs.log,pwfs);
-            end
+            checkOut(pwfs.log,pwfs);
         end
         %% Gets and sets
         % The get functions are not necessary here, because all properties
