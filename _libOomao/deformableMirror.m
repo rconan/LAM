@@ -241,7 +241,7 @@ classdef deformableMirror < handle
                 end
             end
             
-            if sensor.lenslets.nLenslet>1
+            if isa(sensor,'pyramid') || sensor.lenslets.nLenslet>1
                 
                 src = src*obj*sensor;
                 
@@ -263,16 +263,16 @@ classdef deformableMirror < handle
                     u               = 0;
                     pokeMatrix  = zeros(sensor.nSlope,nMode);
 %                     fprintf(' . actuators range:          ')
-%                     h = waitbar(0,'DM/WFS calibration ...');
+                    h = waitbar(0,'DM/WFS calibration ...');
                     while u(end)<nMode
                         u = u(end)+1:min(u(end)+nC,nMode);
-%                         waitbar(u(end)/nMode)
+                        waitbar(u(end)/nMode)
 %                         fprintf('\b\b\b\b\b\b\b\b\b%4d:%4d',u(1),u(end))
                         obj.coefs = calibDmCommands(:,u);
                         +src;
                         pokeMatrix(:,u) = sensor.slopes;
                     end
-%                     close(h)
+                    close(h)
                 end
                 elt = toc(tId);
                 
