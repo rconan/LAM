@@ -10,7 +10,8 @@ classdef pyramid < handle
         %TODO fix c
         modulation;             %amplitude of the modulation in \lambda/D units, a decimal number
         referenceSlopes;        %the slopes vector of reference
-        referenceSlopesMap;     %the slopes map of reference
+        referenceSlopesMap;     %the slopes map of referencea
+        tag = 'PYRAMID';
     end
     properties(GetAccess = 'public', SetAccess = 'private')
         lightMap;               %map of the light passed through the pyramid
@@ -29,64 +30,57 @@ classdef pyramid < handle
         binning;                % binning factor, default 1
     end
     
+    properties (Dependent,SetAccess=private)
+        nSlope;                 % # of slopes
+    end
+    
     properties (Access=private)
         p_alpha;
         p_c;
         p_binning = 1;          % binning factor, default 1
         isInitialized;
         u;
+        log;
     end
     
     %%
     methods
         %% Constructor
-        function pwfs = pyramid(resolution)
-            pwfs.resolution = resolution;
-            pwfs.modulation = 0;
-            pwfs.wave=ones(floor(resolution));
+        function pwfs = pyramid(resolution,varargin)
+            p = inputParser;
+            addRequired(p,'resolution',@isnumeric);
+            addParameter(p,'modulation',0,@isnumeric);
+            addParameter(p,'binning',1,@isnumeric);
+            parse(p,resolution,varargin{:})
+            
+            pwfs.resolution = p.Results.resolution;
+            pwfs.modulation = p.Results.modulation;
+            
             pwfs.p_alpha=pi/2;
             pwfs.p_c=2;
-            pwfs.camera=detector(2*pwfs.c*floor(resolution));
-            pwfs.isInitialized=false;
-            pwfs.validIntensityPupil = utilities.piston(resolution,resolution*pwfs.c,'type','logical');
+            pwfs.camera=detector(2*pwfs.c*resolution);
+
+            pwfs.binning    = p.Results.binning;
             pwfs.validSlopes = [pwfs.validIntensityPupil pwfs.validIntensityPupil];
             
             pwfs.u = 1+pwfs.resolution*(2*pwfs.c-1)/2:pwfs.resolution*(2*pwfs.c+1)/2;
             pwfs.camera.frameGrabber=pwfs; %
             makePyrMask(pwfs)
+            pwfs.log = logBook.checkIn(pwfs);
         end
         
         %% Destructor
         function delete(pwfs)
-            %             if isvalid(obj.slopesListener)
-            %                 delete(obj.slopesListener)
-            %             end
-            %             if isvalid(obj.intensityListener)
-            %                 delete(obj.intensityListener)
-            %             end
-            %             if isvalid(obj.paceMaker)
-            %                 if strcmp(obj.paceMaker.Running,'on')
-            %                     stop(obj.paceMaker)
-            %                 end
-            %                 delete(obj.paceMaker)
-            %             end
-            %             if ishandle(pwfs.slopesDisplayHandle)
-            %                 delete(pwfs.slopesDisplayHandle)
-            %             end
-            %             if ishandle(pwfs.intensityDisplayHandle)
-            %                 delete(pwfs.intensityDisplayHandle)
-            %             end
-            
             if isvalid(pwfs.camera)
                 delete(pwfs.camera)
             end
-            if ~isempty(pwfs.log)
-                checkOut(pwfs.log,pwfs);
-            end
+            checkOut(pwfs.log,pwfs);
         end
-        %% Gets and sets
-        % The get functions are not necessary here, because all properties
-        % are defined as public with respect to GetAccess
+        
+        % get nSlope
+        function out = get.nSlope(pwfs)
+            out = sum(pwfs.validSlopes(:));
+        end
         
         % setget alpha
         function out = get.alpha(pwfs)
@@ -120,47 +114,16 @@ classdef pyramid < handle
             pwfs.p_binning = val;
             pwfs.isInitialized = false;
             
-            pwfs.validIntensityPupil = utilities.piston(pwfs.resolution/pwfs.binning,pwfs.resolution*pwfs.c/pwfs.binning,'type','logical');
+            pwfs.validIntensityPupil = utilities.piston(pwfs.resolution/pwfs.p_binning,pwfs.resolution*pwfs.c/pwfs.p_binning,'type','logical');
             pwfs.validSlopes = [pwfs.validIntensityPupil pwfs.validIntensityPupil];
             
         end
-        
-        
-        %         %%Get and set modulation
-        %         function modulation = getmodulation(pwfs)
-        %             modulation = pwfs.modulation;
-        %         end
-        %         function pwfs = setmodulation(pwfs,modulation)
-        %             pwfs.modulation = modulation;
-        %         end
-        
-        %         %%Get and set wave
-        %         function wave = getwave(pwfs)
-        %             wave = pwfs.wave;
-        %         end
-        %         function pwfs = setwave(pwfs,wave)
-        %             if mod(length(wave),2)==0
-        %                 pwfs.wave = wave;
-        %             else
-        %                 display('WARNING The wave must be a square matrix of even dimension. The new wave setting has been disregarded')
-        %             end
-        %         end
-        
-        
-        %         %%Get and set binning
-        %         function pwfs = setBinning(pwfs, binning)
-        %             pwfs.binning = binning;
-        %         end
-        %         function binning = getBinning(pwfs)
-        %             binning = pwfs.binning;
-        %         end
         
         %% Relay
         % Method that allows compatibility with the overloaded mtimes
         % operator, allowing things like source=(source.*tel)*wfs
         function relay(pwfs, src)
-            pwfs.wave=src.wave;
-            pyramidTransform(pwfs);
+            pyramidTransform(pwfs,src.catWave);
             grab(pwfs.camera,pwfs.lightMap);
             dataProcessing(pwfs);
         end
@@ -170,22 +133,16 @@ classdef pyramid < handle
             imagesc(pwfs.slopesMap.*pwfs.validSlopes);
         end
         
-        %% Propagate the wavefront transformed by the pyramid WFS to the detector
-        function pwfs = pyramidTransform(pwfs)
-            if ~pwfs.isInitialized
-                makePyrMask(pwfs)
-            end
-            %n = length(pwfs.wave);
-            px_side  = pwfs.resolution*2*pwfs.c;
-            nPhase = size(pwfs.wave,3);
-            q = zeros(px_side, px_side, nPhase);
-            %u = 1+n*(2*pwfs.c-1)/2:n*(2*pwfs.c+1)/2;
-            q(pwfs.u,pwfs.u,:) = pwfs.wave;
+        %% Propagate the wavefront transformed by the pyram WFS to the detector
+        function pwfs = pyramidTransform(pwfs,wave)
+            [n1,n2,n3] = size(wave);
+            nWave = n2*n3/n1;
+            px_side  = n1*2*pwfs.c;
+            q = zeros(px_side,px_side,nWave);
+            u = 1+n1*(2*pwfs.c-1)/2:n1*(2*pwfs.c+1)/2;
+            q(u,u,:) = reshape(wave,n1,n1,nWave);
             
-            
-            %I4Q = abs(fft2(fft2(q).*fftshift(pwfs.pyrMask))).^2;
-            I4Q = abs(fft2(bsxfun(@times, fft2(q), pwfs.pyrMask))).^2;
-            
+                        
             %             figure()
             %             h = imagesc(I4Q);
             %             axis square
@@ -196,15 +153,14 @@ classdef pyramid < handle
                 [u,v] = ndgrid((0:(px_side-1))./px_side);
                 [o,r] = cart2pol(u,v);
                 nTheta = round(4*pi*pwfs.modulation);
-                I4Q = zeros(px_side,px_side,nPhase, nTheta); %
-                %fpym = fftshift(pwfs.pyrMask);
+
+                I4Q = zeros(px_side,px_side,nWave,nTheta); %
                 for kTheta = 1:nTheta
                     theta = (kTheta-1)*2*pi/nTheta;
                     fftPhasor = exp(-1i.*pi.*8*pwfs.modulation*r.*cos(o+theta));
-                    %I4Q(:,:,:, kTheta) = abs(fft2(fft2(q.*fftPhasor).*pwfs.pyrMask)).^2;
-                    I4Q(:,:,:, kTheta) = abs(fft2(...
-                        bsxfun(@times,...
-                        fft2(bsxfun(@times, q, fftPhasor)), pwfs.pyrMask))).^2;
+                    buf = bsxfun(@times,q,fftPhasor);
+                    buf = bsxfun(@times,fft2(buf),pwfs.pyrMask);
+                    I4Q(:,:,:,kTheta) = abs(fft2(buf)).^2;
                     
                     %I4Q(:,:,kTheta) = fft2(fft2(q.*fftPhasor).*fpym);
                     %imagesc(fftshift(abs(fft2(q.*fftPhasor))))
@@ -220,13 +176,16 @@ classdef pyramid < handle
                 %I4Q =  abs(fft2(fft2(q).*fftPhasor.*fpym)).^2;
                 %                set(h,'Cdata',I4Q)
                 %                drawnow
+            else
+                I4Q = bsxfun(@times,fft2(q),pwfs.pyrMask);
+                I4Q = abs(fft2(I4Q)).^2;
             end
-            pwfs.lightMap=I4Q;
+            pwfs.lightMap = reshape(I4Q,px_side,px_side*nWave);
         end
         
         %% make the pyramid phase mask
         function makePyrMask(pwfs)
-            px_side  = length(pwfs.wave)*2*pwfs.c;
+            px_side  = pwfs.resolution*2*pwfs.c;
             
             
             [fx,fy] = freqspace(px_side,'meshgrid');
@@ -278,9 +237,6 @@ classdef pyramid < handle
             %grab(pwfs.camera,pwfs.lightMap);
             %dataProcessing(pwfs);
             
-            
-            %pwfs.wave=src.wave;
-            pyramidTransform(pwfs);
             grab(pwfs.camera,pwfs.lightMap);
             dataProcessing(pwfs);
             
@@ -291,11 +247,14 @@ classdef pyramid < handle
             %This function computes the slopes corresponding to a flat
             %incoming light wave.
             
-            px_side  = length(pwfs.camera.frame);
+            px_side  = size(pwfs.camera.frame,1);
             
-            I4Q=utilities.binning(pwfs.camera.frame,[px_side px_side]/pwfs.binning);             % binning
+            I4Q=utilities.binning(pwfs.camera.frame,size(pwfs.camera.frame)/pwfs.binning);             % binning
+
+            n = px_side/pwfs.binning;
+            I4Q = reshape(I4Q,n,n,[]);
             
-            half = floor(px_side/pwfs.c/pwfs.binning);
+            half = floor(px_side/2/pwfs.binning);
             xc = half+1;
             
             is = xc-half+1;
@@ -315,8 +274,7 @@ classdef pyramid < handle
             ie = xc;
             I4 = I4Q(is:ie,js:je,:);
             
-            
-            computeSlopes(pwfs, I1, I2, I3, I4);
+            computeSlopes(pwfs, I1, I2, I3, I4);% modiffff 
         end
         
         %% Compute slopes from 4 intensity maps
@@ -332,22 +290,21 @@ classdef pyramid < handle
             
             SyMap = (I1-I2+I4-I3)./I;
             SxMap = (I1-I4+I2-I3)./I;
+
             if pwfs.isInitialized == true
-                pwfs.slopesMap=bsxfun(@minus, [SxMap,SyMap], pwfs.referenceSlopesMap);
+                pwfs.slopesMap = bsxfun(@minus,[SxMap,SyMap],pwfs.referenceSlopesMap);
             else
                 pwfs.slopesMap=[SxMap,SyMap];
             end
-            
-            pwfs.slopes = [];
-            for kPhase = 1:nPhase
-                kPhaseMapSlopes = pwfs.slopesMap(:,:,kPhase);
-                pwfs.slopes(:,kPhase) = kPhaseMapSlopes(pwfs.validSlopes)*pwfs.slopesUnits;
-            end
+            [n1,n2,n3] = size(pwfs.slopesMap);
+            pwfs.slopesMap = reshape(pwfs.slopesMap,n1*n2,n3);
+            pwfs.slopes = pwfs.slopesMap(pwfs.validSlopes(:),:)*pwfs.slopesUnits;
+            pwfs.slopesMap = reshape( pwfs.slopesMap , n1, n2*n3);
         end
         
         %% gain calibration
         function gainCalibration(pwfs)
-            nPx = length(pwfs.wave);
+            nPx = pwfs.resolution;
             ngs = source('wavelength',photometry.R);
             tel = telescope(1,'resolution',nPx);
             zer = zernike(3,'resolution', nPx);

@@ -16,7 +16,7 @@ atm = atmosphere(photometry.V,.15,30,...
     'windDirection',0);
 
 %% Definition of the telescope
-nPx = 60*2;
+nPx = 40;
 tel = telescope(3.6,...
     'fieldOfViewInArcMin',2.5,...
     'resolution',nPx,...
@@ -154,6 +154,13 @@ for iAct = 1:dm.nValidActuator
     +ngs;
     pokeMatrix(iAct,:) = pyr.slopes;
 end
+
+% OOMAO-compatible 
+dm.coefs = eye(dm.nValidActuator)*ngs.wavelength/10;
+ngs.*tel*dm;
+calib = calibration(dm,pyr,ngs,ngs.wavelength/10,90);
+
+
 
 % modal interaction matrix
 zer = zernike(2:500,tel.D, 'resolution', nPx);
