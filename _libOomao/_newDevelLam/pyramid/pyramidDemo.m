@@ -2,9 +2,9 @@ clear
 ngs = source;
 nPx = 40;
 tel = telescope(1,'resolution',nPx);
-zern = zernike(tel,10);
-zern.c = ngs.wavelength/4;
-pyr = pyramid(nPx,'modulation',1,'binning',2);
+zern = zernike(tel,3);
+zern.c = ngs.wavelength/4/16;
+pyr = pyramid(nPx,'modulation',0,'binning',1);
 %pyr.modulation = 1;
 %pyr.binning = 2;
 %%
@@ -17,7 +17,7 @@ subplot(2,1,1)
 imagesc(pyr.camera.frame)
 axis equal tight
 subplot(2,1,2)
-imagesc(pyr.slopesMap)
+imagesc(pyr.slopesMap.*pyr.validSlopes)
 axis equal tight
 
 %%
