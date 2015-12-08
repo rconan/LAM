@@ -90,18 +90,18 @@ classdef zernike < telescopeAbstract
         
         %% Constructor
         function obj = zernike(j,varargin)
-            error(nargchk(1,16,nargin));
+            narginchk(1,16);
             p = inputParser;
             p.addRequired('j', @isnumeric);
             p.addOptional('D', 2, @isnumeric);
-            p.addParamValue('obstructionRatio', 0, @isnumeric);
-            p.addParamValue('resolution', [], @isnumeric);
-            p.addParamValue('radius', [], @isnumeric);
-            p.addParamValue('angle', [], @isnumeric);
-            p.addParamValue('pupil', [], @(x) isnumeric(x) || islogical(x));
-            p.addParamValue('fieldOfViewInArcmin', [], @isnumeric);
-            p.addParamValue('unitNorm', false, @islogical);
-            p.addParamValue('logging', true, @islogical);
+            p.addParameter('obstructionRatio', 0, @isnumeric);
+            p.addParameter('resolution', [], @isnumeric);
+            p.addParameter('radius', [], @isnumeric);
+            p.addParameter('angle', [], @isnumeric);
+            p.addParameter('pupil', [], @(x) isnumeric(x) || islogical(x));
+            p.addParameter('fieldOfViewInArcmin', [], @isnumeric);
+            p.addParameter('unitNorm', false, @islogical);
+            p.addParameter('logging', true, @islogical);
             p.parse(j,varargin{:});
             obj = obj@telescopeAbstract(p.Results.D,...
                 'obstructionRatio',p.Results.obstructionRatio,...
