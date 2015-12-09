@@ -40,7 +40,7 @@ telMasked = telescope(D,'resolution',nRes,...
 
 % cut off a portion of the pupil that is vignetted
 telMasked.pupil(37*nPx:40*nPx,1:3*nPx) = 0;
-%telMasked.pupil = tel.pupil;
+telMasked.pupil = tel.pupil;
 %% WAVE-FRONT SENSOR
 % <latex>
 % \subsubsection{The wavefront sensor}
@@ -182,7 +182,7 @@ fprintf('Strehl ratio: %4.1f\n',cam.strehl)
 gain_cl  = 0.5;
 %% PSEUDO OPEN-LOOP CONTROLLER
 
-gain_pol = 0.6;
+gain_pol = 0.7;
 F = 2*bifaLowRes.modes(wfs.validActuator,:);
 iF = pinv(full(F),1e-1);
 
@@ -201,8 +201,8 @@ wfs.camera.readOutNoise = 1;
 
 
 %lgsAst = lgsAst.*tel*{telMasked.pupil, zeros(nRes)}*wfs;
-lgsAst = lgsAst.*tel*{telMasked.pupil, zeros(nRes)}*dm*wfs;
-%lgsAst = lgsAst.*tel*dm*wfs;
+%lgsAst = lgsAst.*tel*{telMasked.pupil, zeros(nRes)}*dm*wfs;
+lgsAst = lgsAst.*tel*dm*wfs;
 figure(31416)
 imagesc(cam,'parent',subplot(2,1,1))
 subplot(2,1,2)
@@ -216,7 +216,7 @@ wfs.slopesListener.Enabled = false;
 %%
 flush(cam)
 cam.clockRate    = 1;
-exposureTime     = 100;
+exposureTime     = 220;
 cam.exposureTime = exposureTime;
 startDelay       = 20
 flush(cam)
@@ -239,8 +239,8 @@ for k=1:cam.startDelay + cam.exposureTime
     dm.coefs = (1-gain_pol)*dm.coefs + ...
         gain_pol*iF*( lgsAst_slmmse*( bsxfun( @minus, wfs.slopes, calibDm.D*dm.coefs ) ) );
     % Display
-    %     set(h,'Cdata',catMeanRmPhase(science))
-    %     drawnow
+         set(h,'Cdata',catMeanRmPhase(science))
+         drawnow
     toc
 end
 imagesc(cam)

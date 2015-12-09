@@ -40,16 +40,16 @@ telMasked = telescope(D,'resolution',nRes,...
     'obstructionRatio',0.3,'fieldOfViewInArcsec',fieldOfViewInArcsec,'samplingTime',1/samplingFreq);
 
 % cut off a portion of the pupil that is vignetted
-%telMasked.pupil(35*nPx:42*nPx,1:7*nPx) = 0;
+telMasked.pupil(35*nPx:41*nPx,1:7*nPx) = 0;
 
 
-pupilsVignetted{1} = telMasked.pupil;% telMasked.pupil;
+pupilsVignetted{1} = telMasked.pupil;
 pupilsVignetted{2} = pupilsVignetted{1}(:,end:-1:1);
 pupilsVignetted{3} = pupilsVignetted{1}';
 pupilsVignetted{4} = pupilsVignetted{2}';
 
-
-%pupilsVignetted{2} = pupilsVignetted{1};
+pupilsVignetted{1} = tel.pupil;
+pupilsVignetted{2} = pupilsVignetted{1};
 %pupilsVignetted{3} = pupilsVignetted{1};
 %pupilsVignetted{4} = pupilsVignetted{1};
 
@@ -141,6 +141,9 @@ wfsCal.slopesUnits = 1/slopesLinCoef(1);
 
 for iGs = 1:nGs
     wfs(iGs).slopesUnits = 1/slopesLinCoef(1);
+    wfs(iGs).camera.photonNoise = 1;
+    wfs(iGs).camera.readOutNoise = 1;
+    wfs(iGs).framePixelThreshold = wfs(iGs).camera.readOutNoise;
 end
 ngs.zenith = 0;
 wfsCal.pointingDirection = [];
@@ -189,8 +192,24 @@ ngs = ngs.*telLowRes;
 phase = ngs.meanRmOpd;
 %% LGS SOURCES
 lgsAst = source('asterism',{[nGs,arcsec(45),0]},'height',90e3,'magnitude',10);
+
+% ngsAst = source('asterism',{[nGs,arcsec(45),0]},'magnitude',10);
+% ngsAst = ngsAst.*tel;
+% 
+% for iGs=1:nGs
+%     s(:,:,iGs) = pupilsVignetted{iGs};
+% end
+% S = {s, zeros(nRes, nRes,nGs)};
+% ngsAst = ngsAst.*tel*S;
+
+
+
 %lgsAst.magnitude = 12;
 % figure, imagesc(tel, [ngs,lgsAst])
+
+wfsCal.camera.photonNoise = 1;
+wfsCal.camera.readOutNoise = 3; % just for regularisation prurposes
+wfsCal.framePixelThreshold = wfsCal.camera.readOutNoise;
 lgsAst_slmmse = slopesLinearMMSE(wfsCal,tel,atm,lgsAst,'mmseStar',ngs,'NF',1024);
 
 
@@ -231,7 +250,7 @@ dm.coefs = zeros(dm.nValidActuator,1);
 science = science.*telFull*dm*cam;
 %lgsAst = lgsAst.*tel*dm*wfs;
 for iGS=1:nGs
-lgsAst(iGs) = lgsAst(iGs).*tel*{pupilsVignetted{iGs},zeros(nRes)}*dm*wfs(iGs);
+    lgsAst(iGs) = lgsAst(iGs).*tel*{pupilsVignetted{iGs},zeros(nRes)}*dm*wfs(iGs);
 end
 figure(31416)
 imagesc(cam,'parent',subplot(2,1,1))
@@ -244,9 +263,9 @@ wfsCal.slopesListener.Enabled = false;
 %%
 flush(cam)
 cam.clockRate    = 1;
-exposureTime     = 1000;
+exposureTime     = 220;
 cam.exposureTime = exposureTime;
-startDelay       = 200
+startDelay       = 20
 flush(cam)
 cam.startDelay = startDelay;
 set(science,'logging',true)
@@ -264,6 +283,7 @@ for k=1:cam.startDelay + cam.exposureTime
     %+lgsAst;
     for iGs=1:nGs
         lgsAst(iGs) = lgsAst(iGs).*tel*{pupilsVignetted{iGs},zeros(nRes)}*dm*wfs(iGs);
+        %lgsAst(iGs) = lgsAst(iGs).*tel*dm*wfs(iGs);
         slopesk(:,iGs) = wfs(iGs).slopes;
     end
     +science;
@@ -272,8 +292,8 @@ for k=1:cam.startDelay + cam.exposureTime
     dm.coefs = (1-gain_pol)*dm.coefs + ...
         gain_pol*iF*( lgsAst_slmmse*( bsxfun( @minus, slopesk, calibDm.D*dm.coefs ) ) );
     % Display
-    %     set(h,'Cdata',catMeanRmPhase(science))
-    %     drawnow
+         set(h,'Cdata',catMeanRmPhase(science))
+         drawnow
     toc
 end
 imagesc(cam)

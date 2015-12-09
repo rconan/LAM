@@ -115,6 +115,10 @@ dm = deformableMirror(nL+1,'modes',bifa,...
 bifaLowRes = influenceFunction('monotonic',dmCrossCouplingCoeff);
 dmLowRes = deformableMirror(nL+1,'modes',bifaLowRes,'resolution',nL+1,...
     'validActuator',wfs.validActuator);
+
+F = 2*bifaLowRes.modes(wfs.validActuator,:);
+iF = pinv(full(F),1e-1);
+
 %% INTERACTION MATRIX
 wfs.camera.frameListener.Enabled = false;
 wfs.slopesListener.Enabled = false;
@@ -138,8 +142,14 @@ telLowRes= telLowRes + atm;
 ngs = ngs.*telLowRes;
 phase = ngs.meanRmOpd;
 %% LGS SOURCES
-lgsAst = source('asterism',{[6,arcsec(45),0]},'height',90e3,'magnitude',10);
+lgsAst = source('asterism',{[4,arcsec(45),0]},'height',90e3,'magnitude',10);
 % figure, imagesc(tel, [ngs,lgsAst])
+
+
+wfs.camera.photonNoise = 1;
+wfs.camera.readOutNoise = 1;
+wfs.framePixelThreshold = wfs.camera.readOutNoise;
+
 lgsAst_slmmse = slopesLinearMMSE(wfs,tel,atm,lgsAst,'mmseStar',ngs,'NF',1024);
 
 
@@ -166,8 +176,6 @@ gain_cl  = 0.5;
 %% PSEUDO OPEN-LOOP CONTROLLER
 
 gain_pol = 0.7;
-F = 2*bifaLowRes.modes(wfs.validActuator,:);
-iF = pinv(full(F),1e-1);
 
 
 %% Laser Tomography Adaptive Optics
@@ -189,7 +197,7 @@ wfs.slopesListener.Enabled = false;
 %%
 flush(cam)
 cam.clockRate    = 1;
-exposureTime     = 100;
+exposureTime     = 220;
 cam.exposureTime = exposureTime;
 startDelay       = 20
 flush(cam)
@@ -200,9 +208,7 @@ lgsAst_slmmse.wavefrontSize = [dm.nValidActuator,1];
 lgsAst_slmmse.warmStart = true;
 cam.frameListener.Enabled = true;
 
-wfs.camera.photonNoise = true;
-wfs.camera.readOutNoise = 1;
-wfs.framePixelThreshold = wfs.camera.readOutNoise;
+
 %% The loop is closed for one full exposure of the science camera.
 nIteration = startDelay + exposureTime;
 for k=1:cam.startDelay + cam.exposureTime

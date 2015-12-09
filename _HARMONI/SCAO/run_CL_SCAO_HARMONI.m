@@ -6,7 +6,7 @@ close all
 %pupil = Masq_M1; clear Masq_M1;
 
 %load('/data/HARMONI/SCAO/TESTS/MAT_FI_M4_740.mat');
-
+%load('/data/HARMONI/SCAO/SIMUL_MORGAN/MIROIR_M4/MAT_FI_M4_740.mat')
 % static maps
 %load('/data/HARMONI/SCAO/TESTS/JEFF_HSFreq_740.mat');
 %% SOURCE
@@ -90,7 +90,9 @@ ngs.zenith = 0;
 wfs.pointingDirection = [];
 %% DEFORMABLE MIRROR
 
-bifa = influenceFunction('monotonic',0.4);
+couplingCoeff = 0.3;
+% CASE 1: Fried topology
+bifa = influenceFunction('monotonic',couplingCoeff);
 figure,show(bifa,'parent',subplot(1,2,1))
 title('Monototic influence function')% The markers in the figures correspond to, from left to right, the points $P_k$ from $k=0$ to 6.
 
@@ -99,10 +101,20 @@ dm = deformableMirror(nL+1,'modes',bifa,...
     'resolution',tel.resolution,...
     'validActuator',wfs.validActuator);
 
+% CASE 2: M4 actuator locations
 % replace theoretical IFs by M4 IFs
 %bifa = influenceFunction('monotonic',0.0);
 %bifa.modes = MatFI_M4;
 %dm = deformableMirror(nL+1,'modes',bifa);
+
+
+% bifM4 = influenceFunction('monotonic',couplingCoeff); 
+% m4 = load('../Coord_RepHexa');
+% pitch = 31.5e-3*2;
+% bifM4.actuatorCoord =  (m4.Centres_Act(:,1) + 1j*m4.Centres_Act(:,2))/pitch;
+% dm = deformableMirror(m4.nb_act,'modes',bifM4,'resolution',tel.resolution,...
+%     'validActuator',true(1,m4.nb_act)); 
+% 
 
 
 %% INTERACTION MATRIX
@@ -137,7 +149,7 @@ telLowRes= telLowRes + atm;
 ngs = ngs.*telLowRes;
 phase = ngs.meanRmOpd;
 
-bifaLowRes = influenceFunction('monotonic',0.4);
+bifaLowRes = influenceFunction('monotonic',couplingCoeff);
 dmLowRes = deformableMirror(nL+1,'modes',bifaLowRes,'resolution',nL+1,...
     'validActuator',wfs.validActuator);
 
@@ -148,7 +160,7 @@ F = 2*bifaLowRes.modes(wfs.validActuator,:);
 iF = pinv(full(F),1e-1);
 
 %% Closed--loop NGS AO systems
-science = source('wavelength',photometry.H);
+science = source('wavelength',photometry.K);
 cam = imager(tel);
 %%
 tel = tel - atm;
@@ -176,7 +188,7 @@ dm.coefs = zeros(dm.nValidActuator,1);
 ngsCombo = source('zenith',zeros(1,1),'azimuth',zeros(1,1),'magnitude',12,'wavelength',photometry.R);
 %ngsCombo = ngsCombo.*tel*StaticWaveNGS*dm*wfs;
 ngsCombo = ngsCombo.*tel*dm*wfs;
-scienceCombo = source('zenith',zeros(1,1),'azimuth',zeros(1,1),'wavelength',photometry.H);
+scienceCombo = source('zenith',zeros(1,1),'azimuth',zeros(1,1),'wavelength',photometry.K);
 %scienceCombo = scienceCombo.*tel*StaticWaveSCI*dm*cam;
 scienceCombo = scienceCombo.*tel*dm*cam;
 
@@ -187,7 +199,7 @@ scienceCombo = scienceCombo.*tel*dm*cam;
 flush(cam)
 cam.frame = cam.frame*0;
 cam.clockRate    = 1;
-exposureTime     = 100;
+exposureTime     = 1000;
 cam.exposureTime = exposureTime;
 startDelay       = 20;
 figure(31416)
