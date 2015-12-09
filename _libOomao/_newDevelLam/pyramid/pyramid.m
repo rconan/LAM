@@ -96,6 +96,13 @@ classdef pyramid < handle
             end
             checkOut(pwfs.log,pwfs);
         end
+        %% set-get
+        
+        % set modulation
+         function set.modulation(pwfs,val)
+             pwfs.modulation = val;
+         end
+        
         
         % get nSlope
         function out = get.nSlope(pwfs)
@@ -295,19 +302,18 @@ classdef pyramid < handle
             pwfs.pyrMask   = fftshift(pym./sum(abs(pym(:))));
         end
         
-        %%
+        %% INITIALISATION :: referecence slopes and gain calibration
         function INIT(pwfs)
             
-            %makePyrMask(pwfs)
-            %pyramidTransform(pwfs)
-            %dataProcessing(pwfs)
-            
             pwfs.referenceSlopesMap = pwfs.slopesMap + pwfs.referenceSlopesMap;
-
+            
+            pwfs.slopesUnits = 1;
+            pwfs.slopesMap = pwfs.slopesMap*0;
+            pwfs.slopes = pwfs.slopes*0;
+            
             gainCalibration(pwfs)
             
             pwfs.isInitialized = true;
-            
         end
         
         %%

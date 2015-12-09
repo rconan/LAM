@@ -40,7 +40,7 @@ wfs_sh.camera.readOutNoise = 1;
 %telescope it is associated with.
 
 
-pyr = pyramid(nLenslet,nPx,'modulation',1,'binning',1);
+pyr = pyramid(nLenslet,nPx,'modulation',2,'binning',1);
 pyr.camera.readOutNoise = 0;
 
 
@@ -119,12 +119,12 @@ slopesDisplay(wfs_sh)
 
 %% Gain Calibration
 for i = 1:20
-    zer.c = (i-10)*0.1/ngs.waveNumber;
+    zer.c = (i-10)*0.5/ngs.waveNumber;
     ngs = ngs.*tel*zer*pyr;
     sx(i) = mean(pyr.slopes(1:end/2));
     sy(i) = mean(pyr.slopes(end/2+1:end));
 end
-syTh = 4*([1:20]-10)*0.1;%/ngs.waveNumber;
+syTh = 4*([1:20]-10)*0.5;%/ngs.waveNumber;
 figure,hold
 plot(syTh, sy,'o')
 plot(syTh, syTh)
