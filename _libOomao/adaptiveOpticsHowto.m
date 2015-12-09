@@ -57,7 +57,7 @@ tel = telescope(3.6,...
 % * the magnitude
 %
 % In the following, an on-axis natural guide star in V band is defined.
-ngs = source('wavelength',photometry.J);
+ngs = source('wavelength',photometry.R);
 
 %% Definition of the wavefront sensor
 % Up to now, only the Shack--Hartmann WFS has been implemented in OOMAO.

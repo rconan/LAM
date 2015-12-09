@@ -63,14 +63,15 @@ classdef pyramid < handle
             addRequired(p,'resolution',@isnumeric);
             addParameter(p,'modulation',0,@isnumeric);
             addParameter(p,'binning',1,@isnumeric);
+            addParameter(p,'c',2,@isnumeric);
+            addParameter(p,'alpha',pi/2,@isnumeric);
             parse(p,nLenslet,resolution,varargin{:})
             
             pwfs.nLenslet   = p.Results.nLenslet;
             pwfs.resolution = p.Results.resolution;
-            pwfs.modulation = p.Results.modulation;
-            
-            pwfs.p_alpha=pi/2;
-            pwfs.p_c=2;
+            pwfs.modulation = p.Results.modulation;            
+            pwfs.p_alpha    = p.Results.alpha;
+            pwfs.p_c        = p.Results.c;
             pwfs.camera=detector(2*pwfs.c*nLenslet);
 
             pwfs.binning    = p.Results.binning;
@@ -173,18 +174,24 @@ classdef pyramid < handle
         end
         
         %% slopesDisplay
-        function slopesDisplay(pwfs,varargin)
+        function varargout = slopesDisplay(pwfs,varargin)
+            n = pwfs.nLenslet*pwfs.c;
+            data = reshape( pwfs.slopesMap , n , 2*n, []);
+            data = bsxfun( @times, data, pwfs.validSlopes);
+            data = reshape( data, n , []);
             if ishandle(pwfs.slopesDisplayHandle)
                 set(pwfs.slopesDisplayHandle,...
-                    'Cdata',pwfs.slopesMap.*pwfs.validSlopes,...
-                    varargin{:})
+                    'Cdata',data,varargin{:})
             else
-                pwfs.slopesDisplayHandle = imagesc(pwfs.slopesMap.*pwfs.validSlopes,varargin{:});
+                pwfs.slopesDisplayHandle = imagesc(data,varargin{:});
                 ax = gca;
                 pos = get(ax,'position');
                 axis xy equal tight
                 ylabel(colorbar('location','EastOutside'),'Pixel')
                 set(ax,'position',pos)
+            end
+            if nargout>1
+                varargout{1} = pwfs.slopesDisplayHandle;
             end
         end
         
@@ -222,32 +229,29 @@ classdef pyramid < handle
             q(u,u,:) = reshape(wave,n1,n1,nWave);
             
                         
-            %             figure()
-            %             h = imagesc(I4Q);
-            %             axis square
-            %             colorbar
-            %             % drawnow
             
             if pwfs.modulation>0
+
                 [u,v] = ndgrid((0:(px_side-1))./px_side);
                 [o,r] = cart2pol(u,v);
-                nTheta = round(4*pi*pwfs.modulation);
-
+                nTheta = round(2*pi*pwfs.c*pwfs.modulation);
                 I4Q = zeros(px_side,px_side,nWave,nTheta); %
+
+%                 tmp = zeros(px_side);
+
                 for kTheta = 1:nTheta
                     theta = (kTheta-1)*2*pi/nTheta;
-                    fftPhasor = exp(-1i.*pi.*8*pwfs.modulation*r.*cos(o+theta));
+                    fftPhasor = exp(-1i.*pi.*4*pwfs.modulation*pwfs.c*r.*cos(o+theta));
                     buf = bsxfun(@times,q,fftPhasor);
                     buf = bsxfun(@times,fft2(buf),pwfs.pyrMask);
                     I4Q(:,:,:,kTheta) = abs(fft2(buf)).^2;
                     
-                    %I4Q(:,:,kTheta) = fft2(fft2(q.*fftPhasor).*fpym);
-                    %imagesc(fftshift(abs(fft2(q.*fftPhasor))))
-                    %drawnow
-                    %pause
-                    %         set(h,'Cdata',I4Q(:,:,kTheta))
-                    %         drawnow
+%                     tmp = tmp + fftshift(abs(buf));
                 end
+%                 figure
+%                 imagesc(tmp)
+%                 axis square
+%                 title(sprintf('Modulation=%d;c=%d',pwfs.modulation,pwfs.c))
                 I4Q = sum(I4Q,4);
                 
                 %fftPhasor = 2./(pwfs.modulation*r).*(cos(pi*pwfs.modulation*r) + sin(pi*pwfs.modulation*r));
