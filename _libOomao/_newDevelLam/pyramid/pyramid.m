@@ -1,7 +1,13 @@
 classdef pyramid < handle
-    %pyramid
-    %A class that implements a Pyramid WFS
-    %%
+    % PYRAMID Creates a pyramid WFS object
+    %
+    % pwfs = pyramid(nLenslet,nPx) creates a pyramid WFS object equivalent
+    % to a (nLenslet X nLenslet) Shack-Hartmann WFS with an incoming
+    % wavefront with a (nPx X nPx) resolution
+    %
+    % pwfs = pyramid(...,'modulation',m) modulates the pyramid with an
+    % amplitude m lambda/D
+    
     properties 
         nLenslet                % # of lenslet
         resolution;             % resolution of the single quadrant detector images
@@ -97,12 +103,12 @@ classdef pyramid < handle
             checkOut(pwfs.log,pwfs);
         end
         
-        % get nSlope
+        %% Get nSlope
         function out = get.nSlope(pwfs)
             out = sum(pwfs.validSlopes(:));
         end
         
-        % setget alpha
+        %% Get and Set alpha
         function out = get.alpha(pwfs)
             out = pwfs.p_alpha;
         end
@@ -111,7 +117,7 @@ classdef pyramid < handle
             makePyrMask(pwfs);
         end
         
-        % setget c
+        %% Get and Set c
         function out = get.c(pwfs)
             out = pwfs.p_c;
         end
@@ -127,7 +133,7 @@ classdef pyramid < handle
             
         end
         
-        % setget binning
+        %% Get and Set binning
         function out = get.binning(pwfs)
             out = pwfs.p_binning;
         end
@@ -168,13 +174,23 @@ classdef pyramid < handle
         % Method that allows compatibility with the overloaded mtimes
         % operator, allowing things like source=(source.*tel)*wfs
         function relay(pwfs, src)
+            %% RELAY pyramid to source relay
+            
             pyramidTransform(pwfs,src.catWave);
             grab(pwfs.camera,pwfs.lightMap);
             dataProcessing(pwfs);
         end
         
-        %% slopesDisplay
         function varargout = slopesDisplay(pwfs,varargin)
+            %% SLOPESDISPLAY pyramide slopes display
+            %
+            % slopesDisplay(obj) displays image plot of the slopes
+            %
+            % slopesDisplay(obj,'PropertyName',PropertyValue) displays
+            % image plot of the slopes and set the properties of the
+            % graphics object quiver
+            %
+            % h = slopesDisplay(obj,...) returns the graphics handle
             n = pwfs.nLenslet*pwfs.c;
             data = reshape( pwfs.slopesMap , n , 2*n, []);
             data = bsxfun( @times, data, pwfs.validSlopes);
@@ -196,6 +212,17 @@ classdef pyramid < handle
         end
         
         function varargout = intensityDisplay(pwfs,varargin)
+            %% INTENSITYDISPLAY pyramid lenslet intensity display
+            %
+            % intensityDisplay(obj) displays the intensity of the lenslets
+            %
+            % intensityDisplay(obj,'PropertyName',PropertyValue) displays
+            % the intensity of the lenslets and set the properties of the
+            % graphics object imagesc
+            %
+            % h = intensityDisplay(obj,...) returns the graphics handle
+            %
+            % See also: imagesc
             n = size(pwfs.camera.frame,1);
             frame = pwfs.camera.frame(1:n/2,:) + pwfs.camera.frame(1+n/2:n,:);
             frame = reshape(frame',size(frame,1)*2,[]);
@@ -217,7 +244,125 @@ classdef pyramid < handle
             if nargout>0
                 varargout{1} = obj.intensityDisplayHandle;
             end
-       end
+        end        
+         
+        function INIT(pwfs)
+            %% INIT pyramid inialization 
+            %
+            % pwfs.INIT sets the reference slopes
+            
+            %makePyrMask(pwfs)
+            %pyramidTransform(pwfs)
+            %dataProcessing(pwfs)
+            
+            pwfs.referenceSlopesMap = pwfs.slopesMap + pwfs.referenceSlopesMap;
+
+            gainCalibration(pwfs)
+            
+            pwfs.isInitialized = true;
+            
+        end
+        
+        %This function updates the detector with whatever light there
+        %is in the pyramid, and then procedes to process the output of
+        %the detector in order to obtain the slopes    
+        function uplus(pwfs)
+            %% UPLUS + Update operator
+            %
+            % +obj grabs a frame and computes the slopes
+            %
+            % obj = +obj returns the pyramid object
+           
+            grab(pwfs.camera,pwfs.lightMap);
+            dataProcessing(pwfs);
+            
+        end
+        
+        %This function computes the slopes corresponding to a flat
+        %incoming light wave.
+        function dataProcessing(pwfs)
+            %% DATAPROCESSING Processing a SH-WFS detector frame
+            %
+            % dataProcessing(obj) computes the WFS slopes
+            
+            px_side  = size(pwfs.camera.frame,1);
+            
+            frame = pwfs.camera.frame;
+            if isfinite(pwfs.framePixelThreshold)
+                frame = frame - pwfs.framePixelThreshold;
+            end
+            frame(frame<0) = 0;
+            I4Q=utilities.binning(frame,size(pwfs.camera.frame)/pwfs.binning);             % binning
+
+            n = px_side/pwfs.binning;
+            I4Q = reshape(I4Q,n,n,[]);
+            
+            half = floor(px_side/2/pwfs.binning);
+            xc = half+1;
+            
+            is = xc-half+1;
+            ie = xc;
+            js = xc-half+1;
+            je = xc;
+            I1 = I4Q(is:ie,js:je,:);
+            is = xc;
+            ie = xc+half-1;
+            I2 = I4Q(is:ie,js:je,:);
+            is = xc;
+            ie = xc+half-1;
+            js = xc;
+            je = xc+half-1;
+            I3 = I4Q(is:ie,js:je,:);
+            is = xc-half+1;
+            ie = xc;
+            I4 = I4Q(is:ie,js:je,:);
+            
+            computeSlopes(pwfs, I1, I2, I3, I4);% modiffff 
+        end
+        
+        %% gain calibration
+        function gainCalibration(pwfs)
+            nPx = pwfs.resolution;
+            ngs = source('wavelength',photometry.R);
+            tel = telescope(1,'resolution',nPx);
+            zer = zernike(3,'resolution', nPx);
+            sx = zeros(1,5);
+            sy = zeros(1,5);
+            for i = 1:5
+                zer.c = (i-3)*0.1/(ngs.waveNumber);
+                ngs = ngs.*tel*zer*pwfs;
+                sx(i) = mean(pwfs.slopes(1:end/2));
+                sy(i) = mean(pwfs.slopes(end/2+1:end));
+            end
+            Ox_in = 4*(-2:2)*0.1;%/ngs.waveNumber;
+            Ox_out = sy;
+            slopesLinCoef = polyfit(Ox_in,Ox_out,1);
+            pwfs.slopesUnits = 1/slopesLinCoef(1);
+            
+            ngs = ngs.*tel*pwfs;
+        end
+        %% HIlbert transform approximation for the slopes
+        function hilbertSlopes(pwfs,telescope,source)
+            P=telescope.pupil;
+            phi=angle(source.wave);
+            %            Sx = ???PHx (P??) + P??Hx (P) ??? Hxy (P)Hy (P??) + Hxy (P??)Hy (P),
+            %            Sy = ???PHy (P??) + P??Hy (P) ??? Hxy (P)Hx (P??) + Hxy (P??)Hx (P).
+            %            Sx = -P*imag(hilbert(P*phi)) + P*phi*imag(hilbert(P)) - imag(hilbert(imag(hilbert(transpose(P)))))*imag(hilbert(transpose(P*phi))) + imag(hilbert(imag(hilbert(transpose(P*phi)))))*imag(hilbert(transpose(P))) ;
+            %            Sy = -P*imag(hilbert(transpose(P*phi))) + P*phi*imag(hilbert(transpose(P))) - imag(hilbert(imag(hilbert(transpose(P)))))*imag(hilbert(P*phi)) + imag(hilbert(imag(hilbert(transpose(P*phi)))))*imag(hilbert(P)) ;
+            %Sx = -P.*imag(hilbert(P.*phi)) + P.*phi.*imag(hilbert(P)) - imag(hilbert(transpose(imag(hilbert(P))))).*imag(hilbert(transpose(P.*phi))) + imag(hilbert(transpose(imag(hilbert(P.*phi))))).*imag(hilbert(transpose(P))) ;
+            %Sy = -P*imag(hilbert(transpose(P*phi))) + P*phi*imag(hilbert(transpose(P))) - imag(hilbert(imag(hilbert(transpose(P)))))*imag(hilbert(P*phi)) + imag(hilbert(imag(hilbert(transpose(P*phi)))))*imag(hilbert(P)) ;
+            myHilbertX = @(x) imag(hilbert(x));
+            myHilbertY = @(x) imag(hilbert(x')');
+            myHilbertXY = @(x) imag(hilbert(imag(hilbert(x')')));
+            Sx = -P.*myHilbertX(P.*phi) + P.*phi.*myHilbertX(P) - myHilbertXY(P).*myHilbertY(P.*phi) + myHilbertXY(P.*phi).*myHilbertY(P);
+            Sy = -P.*myHilbertY(P.*phi) + P.*phi.*myHilbertY(P) - myHilbertXY(P).*myHilbertX(P.*phi) + myHilbertXY(P.*phi).*myHilbertX(P) ;
+            pwfs.slopes=[Sx,Sy];
+            
+        end
+        
+    end
+    
+    methods (Access=private)
         
         %% Propagate the wavefront transformed by the pyram WFS to the detector
         function pwfs = pyramidTransform(pwfs,wave)
@@ -225,10 +370,7 @@ classdef pyramid < handle
             nWave = n2*n3/n1;
             px_side  = n1*2*pwfs.c;
             q = zeros(px_side,px_side,nWave);
-            u = 1+n1*(2*pwfs.c-1)/2:n1*(2*pwfs.c+1)/2;
-            q(u,u,:) = reshape(wave,n1,n1,nWave);
-            
-                        
+            q(pwfs.u,pwfs.u,:) = reshape(wave,n1,n1,nWave);                        
             
             if pwfs.modulation>0
 
@@ -295,79 +437,9 @@ classdef pyramid < handle
             pwfs.pyrMask   = fftshift(pym./sum(abs(pym(:))));
         end
         
-        %%
-        function INIT(pwfs)
-            
-            %makePyrMask(pwfs)
-            %pyramidTransform(pwfs)
-            %dataProcessing(pwfs)
-            
-            pwfs.referenceSlopesMap = pwfs.slopesMap + pwfs.referenceSlopesMap;
-
-            gainCalibration(pwfs)
-            
-            pwfs.isInitialized = true;
-            
-        end
-        
-        %%
-        function uplus(pwfs)
-            %This function updates the detector with whatever light there
-            %is in the pyramid, and then procedes to process the output of
-            %the detector in order to obtain the slopes
-            %pwfs.camera.frameGrabber=pwfs;
-            %grab(pwfs.camera,pwfs.lightMap);
-            %dataProcessing(pwfs);
-            
-            grab(pwfs.camera,pwfs.lightMap);
-            dataProcessing(pwfs);
-            
-        end
-        
-        %% Grab a frame and crop signal areas
-        function dataProcessing(pwfs)
-            %This function computes the slopes corresponding to a flat
-            %incoming light wave.
-            
-            px_side  = size(pwfs.camera.frame,1);
-            
-            frame = pwfs.camera.frame;
-            if isfinite(pwfs.framePixelThreshold)
-                frame = frame - pwfs.framePixelThreshold;
-            end
-            frame(frame<0) = 0;
-            I4Q=utilities.binning(frame,size(pwfs.camera.frame)/pwfs.binning);             % binning
-
-            n = px_side/pwfs.binning;
-            I4Q = reshape(I4Q,n,n,[]);
-            
-            half = floor(px_side/2/pwfs.binning);
-            xc = half+1;
-            
-            is = xc-half+1;
-            ie = xc;
-            js = xc-half+1;
-            je = xc;
-            I1 = I4Q(is:ie,js:je,:);
-            is = xc;
-            ie = xc+half-1;
-            I2 = I4Q(is:ie,js:je,:);
-            is = xc;
-            ie = xc+half-1;
-            js = xc;
-            je = xc+half-1;
-            I3 = I4Q(is:ie,js:je,:);
-            is = xc-half+1;
-            ie = xc;
-            I4 = I4Q(is:ie,js:je,:);
-            
-            computeSlopes(pwfs, I1, I2, I3, I4);% modiffff 
-        end
-        
         %% Compute slopes from 4 intensity maps
         function computeSlopes(pwfs, I1, I2, I3, I4)
             
-            nPhase = size(I1,3);
             % normalisation options
             %    1) normalisation pixel-wise by the intensity
             I = (I1+I2+I3+I4);      %
@@ -377,51 +449,13 @@ classdef pyramid < handle
             
             SyMap = (I1-I2+I4-I3)./I;
             SxMap = (I1-I4+I2-I3)./I;
-
+            
             pwfs.slopesMap = bsxfun(@minus,[SxMap,SyMap],pwfs.referenceSlopesMap);
-             
+            
             [n1,n2,n3] = size(pwfs.slopesMap);
             slopesMap_ = reshape(pwfs.slopesMap,n1*n2,n3);
             pwfs.slopes = slopesMap_(pwfs.validSlopes(:),:)*pwfs.slopesUnits;
             pwfs.slopesMap = reshape( slopesMap_ , n1, n2*n3);
-        end
-        
-        %% gain calibration
-        function gainCalibration(pwfs)
-            nPx = pwfs.resolution;
-            ngs = source('wavelength',photometry.R);
-            tel = telescope(1,'resolution',nPx);
-            zer = zernike(3,'resolution', nPx);
-            for i = 1:5
-                zer.c = (i-3)*0.1/(ngs.waveNumber);
-                ngs = ngs.*tel*zer*pwfs;
-                sx(i) = mean(pwfs.slopes(1:end/2));
-                sy(i) = mean(pwfs.slopes(end/2+1:end));
-            end
-            Ox_in = 4*[-2:2]*0.1;%/ngs.waveNumber;
-            Ox_out = sy;
-            slopesLinCoef = polyfit(Ox_in,Ox_out,1);
-            pwfs.slopesUnits = 1/slopesLinCoef(1);
-            
-            ngs = ngs.*tel*pwfs;
-        end
-        %% HIlbert transform approximation for the slopes
-        function hilbertSlopes(pwfs,telescope,source)
-            P=telescope.pupil;
-            phi=angle(source.wave);
-            %            Sx = ???PHx (P??) + P??Hx (P) ??? Hxy (P)Hy (P??) + Hxy (P??)Hy (P),
-            %            Sy = ???PHy (P??) + P??Hy (P) ??? Hxy (P)Hx (P??) + Hxy (P??)Hx (P).
-            %            Sx = -P*imag(hilbert(P*phi)) + P*phi*imag(hilbert(P)) - imag(hilbert(imag(hilbert(transpose(P)))))*imag(hilbert(transpose(P*phi))) + imag(hilbert(imag(hilbert(transpose(P*phi)))))*imag(hilbert(transpose(P))) ;
-            %            Sy = -P*imag(hilbert(transpose(P*phi))) + P*phi*imag(hilbert(transpose(P))) - imag(hilbert(imag(hilbert(transpose(P)))))*imag(hilbert(P*phi)) + imag(hilbert(imag(hilbert(transpose(P*phi)))))*imag(hilbert(P)) ;
-            %Sx = -P.*imag(hilbert(P.*phi)) + P.*phi.*imag(hilbert(P)) - imag(hilbert(transpose(imag(hilbert(P))))).*imag(hilbert(transpose(P.*phi))) + imag(hilbert(transpose(imag(hilbert(P.*phi))))).*imag(hilbert(transpose(P))) ;
-            %Sy = -P*imag(hilbert(transpose(P*phi))) + P*phi*imag(hilbert(transpose(P))) - imag(hilbert(imag(hilbert(transpose(P)))))*imag(hilbert(P*phi)) + imag(hilbert(imag(hilbert(transpose(P*phi)))))*imag(hilbert(P)) ;
-            myHilbertX = @(x) imag(hilbert(x));
-            myHilbertY = @(x) imag(hilbert(x')');
-            myHilbertXY = @(x) imag(hilbert(imag(hilbert(x')')));
-            Sx = -P.*myHilbertX(P.*phi) + P.*phi.*myHilbertX(P) - myHilbertXY(P).*myHilbertY(P.*phi) + myHilbertXY(P.*phi).*myHilbertY(P);
-            Sy = -P.*myHilbertY(P.*phi) + P.*phi.*myHilbertY(P) - myHilbertXY(P).*myHilbertX(P.*phi) + myHilbertXY(P.*phi).*myHilbertX(P) ;
-            pwfs.slopes=[Sx,Sy];
-            
         end
         
     end
