@@ -15,7 +15,6 @@ classdef pyramid < handle
         %satisfy the Shannon's condition). Does not seem to work if modified
         %from its default value.
         %TODO fix c
-        modulation;             %amplitude of the modulation in \lambda/D units, a decimal number
         referenceSlopesMap;     %the slopes map of reference
         framePixelThreshold = -inf;
         % slopes display handle
@@ -42,6 +41,7 @@ classdef pyramid < handle
     end
     
     properties (Dependent)
+        modulation;             %amplitude of the modulation in \lambda/D units, a decimal number
         alpha;                  %angle of incoming rays
         c;            %Multiplicative term of the Nyquist sampling (which is 2 by default). With  c = 2 (default) the quadrants are spread by a factor 2. End result :: c=2 -> 4pixels across \lambda/D
         binning;                % binning factor, default 1
@@ -52,6 +52,7 @@ classdef pyramid < handle
     end
     
     properties (Access=private)
+        p_modulation;
         p_alpha;
         p_c;
         p_binning = 1;          % binning factor, default 1
@@ -102,10 +103,24 @@ classdef pyramid < handle
             end
             checkOut(pwfs.log,pwfs);
         end
+        %% set-get
+        
+        % set modulation
+         function set.modulation(pwfs,val)
+             pwfs.modulation = val;
+         end
         
         %% Get nSlope
         function out = get.nSlope(pwfs)
             out = sum(pwfs.validSlopes(:));
+        end
+        
+        %% Get and Set modulation
+        function out = get.modulation(pwfs)
+            out = pwfs.p_modulation;
+        end
+        function set.alpha(pwfs,val)
+            pwfs.p_alpha = val;
         end
         
         %% Get and Set alpha
@@ -245,22 +260,22 @@ classdef pyramid < handle
                 varargout{1} = obj.intensityDisplayHandle;
             end
         end        
-         
+                         
+        %% INITIALISATION :: referecence slopes and gain calibration
         function INIT(pwfs)
             %% INIT pyramid inialization 
             %
             % pwfs.INIT sets the reference slopes
             
-            %makePyrMask(pwfs)
-            %pyramidTransform(pwfs)
-            %dataProcessing(pwfs)
-            
             pwfs.referenceSlopesMap = pwfs.slopesMap + pwfs.referenceSlopesMap;
-
+            
+            pwfs.slopesUnits = 1;
+            pwfs.slopesMap = pwfs.slopesMap*0;
+            pwfs.slopes = pwfs.slopes*0;
+            
             gainCalibration(pwfs)
             
             pwfs.isInitialized = true;
-            
         end
         
         %This function updates the detector with whatever light there

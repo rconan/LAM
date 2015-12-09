@@ -3,6 +3,7 @@ ngs = source;
 nPx = 60;
 nLenslet = 10;
 tel = telescope(1,'resolution',nPx);
+
 zern = zernike(tel,2);
 zern.c = ngs.wavelength/10;
 pyr = pyramid(nLenslet,nPx,'modulation',4,'binning',1,'c',2);
