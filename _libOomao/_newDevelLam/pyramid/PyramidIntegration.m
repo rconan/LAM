@@ -28,21 +28,22 @@ ngs = source('wavelength',photometry.J);
 ngs_sh = source('wavelength',photometry.J);
 %ngs_sh = source('asterism',{[2,arcsec(45),0]},'magnitude',10); 
 
+%% SH
+nLenslet = 10;
+wfs_sh = shackHartmann(nLenslet,nPx,0.75);
+wfs_sh.camera.readOutNoise = 1;
+
+
 %% Definition of the wavefront sensor
 %Experimental Pyramid WFS, expect some rough edges and maybe some bugs
 %The pyramid takes only one argument, which is the pixel resolution of the
 %telescope it is associated with.
-pyr=pyramid(nPx);
-pyr.binning = 1;
-pyr.modulation = 2; % default = 0
-%pyr.multNyqSamp = 2; % default = 2;
+
+
+pyr = pyramid(nLenslet,nPx,'modulation',1,'binning',1);
 pyr.camera.readOutNoise = 0;
 
 
-%%
-nLenslet = 10;
-wfs_sh = shackHartmann(nLenslet,nPx,0.75);
-wfs_sh.camera.readOutNoise = 1;
 
 %%
 % Propagation of the calibration source to the WFS through the telescope
