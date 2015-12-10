@@ -72,7 +72,7 @@ ngs = source('wavelength',photometry.R);
 % illuminated subaperture and a fully illuminated aperture
 nLenslet = 10;
 %wfs = shackHartmann(nLenslet,nPx,0.75);
-wfs = pyramid(nLenslet,nPx,'modulation',4);
+wfs = pyramid(nLenslet,nPx,'modulation',6);
 %%
 % Propagation of the calibration source to the WFS through the telescope
 ngs = ngs.*tel*wfs;
