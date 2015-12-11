@@ -42,8 +42,8 @@ atm = atmosphere(photometry.V,0.15,30,...
 % * the field of view either in arcminute or arcsecond
 % * the pupil sampling or resolution in pixels
 % * the atmopheric layer motion sampling time [s]
-nPx = 60;
-tel = telescope(3.6,...
+nPx = 80*(39/0.15*4/80);
+tel = telescope(39,...
     'fieldOfViewInArcMin',2.5,...
     'resolution',nPx,...
     'samplingTime',1/100);
@@ -70,7 +70,7 @@ ngs = source('wavelength',photometry.R);
 %
 % * the minimum light ratio that is the ratio between a partially
 % illuminated subaperture and a fully illuminated aperture
-nLenslet = 10;
+nLenslet = 80;
 %wfs = shackHartmann(nLenslet,nPx,0.75);
 wfs = pyramid(nLenslet,nPx,'modulation',6);
 %%
@@ -230,11 +230,11 @@ for kIteration=1:nIteration
     residualDmCoefs = commandMatrix*wfs.slopes;
     % Integrating the DM coefficients
     dm.coefs = dm.coefs - loopGain*residualDmCoefs;
-    % Display of turbulence and residual phase
-    set(h,'Cdata',[turbPhase,ngs.meanRmPhase])
-    drawnow
 end
 toc
+% Display of turbulence and residual phase
+set(h,'Cdata',[turbPhase,ngs.meanRmPhase])
+drawnow
 snapnow
 u = (0:nIteration-1).*tel.samplingTime;
 atm.wavelength = ngs.wavelength;
@@ -300,10 +300,10 @@ for kIteration=1:nIteration
     residualDmCoefs = commandMatrix*wfs.slopes;
     % Integrating the DM coefficients
     dm.coefs = dm.coefs - loopGain*residualDmCoefs;
-    % Display of turbulence and residual phase
-    set(h,'Cdata',[turbPhase,ngs.meanRmPhase])
-    drawnow
 end
+% Display of turbulence and residual phase
+set(h,'Cdata',[turbPhase,ngs.meanRmPhase])
+drawnow
 %%
 % Updating the display
 set(0,'CurrentFigure',12)
