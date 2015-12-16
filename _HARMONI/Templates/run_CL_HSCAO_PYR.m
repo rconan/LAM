@@ -45,9 +45,9 @@ atm = atmosphere(photometry.V0,r0,L0,...
 
 %% TELESCOPE
 nL   = 20;              % number of lenslets
-nPx  = 6;               % number of pixels per lenslet
+nPx  = 4*3;               % number of pixels per lenslet
 nRes = nL*nPx;          % resolution on the pupil plane (no of pixels)
-D    = 8;              % telescope primary mirror diameter
+D    = 3.6*3;              % telescope primary mirror diameter
 d    = D/nL;            % lenslet pitch
 samplingFreq = 100;     % WFS sampling time
 obstructionRatio= 0.3;   % central obscuration ratio
@@ -155,7 +155,7 @@ fprintf('Strehl ratio: %4.1f\n',cam.strehl)
 tel = tel + atm;
 dm.coefs = zeros(dm.nValidActuator,1);
 
-ngs = source('zenith',zeros(1,1),'azimuth',zeros(1,1),'magnitude',10,'wavelength',photometry.R);
+ngs = source('zenith',zeros(1,1),'azimuth',zeros(1,1),'magnitude',8,'wavelength',photometry.R);
 %ngsCombo = ngsCombo.*tel*StaticWaveNGS*dm*wfs;
 ngs = ngs.*tel*dm*wfs;
 s = source('zenith',zeros(1,1),'azimuth',zeros(1,1),'wavelength',photometry.K);

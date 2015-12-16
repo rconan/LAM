@@ -43,13 +43,13 @@ telMasked = telescope(D,'resolution',nRes,...
 telMasked.pupil(35*nPx:41*nPx,1:7*nPx) = 0;
 
 
-pupilsVignetted{1} = telMasked.pupil;
+pupilsVignetted{1} = tel.pupil;
 pupilsVignetted{2} = pupilsVignetted{1}(:,end:-1:1);
 pupilsVignetted{3} = pupilsVignetted{1}';
 pupilsVignetted{4} = pupilsVignetted{2}';
 
-pupilsVignetted{1} = tel.pupil;
-pupilsVignetted{2} = pupilsVignetted{1};
+%pupilsVignetted{1} = tel.pupil;
+%pupilsVignetted{2} = pupilsVignetted{1};
 %pupilsVignetted{3} = pupilsVignetted{1};
 %pupilsVignetted{4} = pupilsVignetted{1};
 
@@ -191,8 +191,14 @@ telLowRes= telLowRes + atm;
 ngs = ngs.*telLowRes;
 phase = ngs.meanRmOpd;
 %% LGS SOURCES
-lgsAst = source('asterism',{[nGs,arcsec(45),0]},'height',90e3,'magnitude',10);
+%lgsAst = source('asterism',{[nGs,arcsec(45),0]},'height',90e3,'magnitude',10);
 
+% single altitude object
+lgsAst = laserGuideStar(tel.D/nL,tel.D, 90e3, [], 2e6, [],'asterism',{[nGs,arcsec(5),0]}, 'wavelength', photometry.Na,'height',9e4);
+theta = linspace(0,2*pi-2*pi/nGs,nGs);
+for iGS = 1:nGs
+    lgsAst(iGS).viewPoint = D/2*[cos(theta(iGS)), sin(theta(iGS))];
+end
 % ngsAst = source('asterism',{[nGs,arcsec(45),0]},'magnitude',10);
 % ngsAst = ngsAst.*tel;
 % 
@@ -216,7 +222,7 @@ lgsAst_slmmse = slopesLinearMMSE(wfsCal,tel,atm,lgsAst,'mmseStar',ngs,'NF',1024)
 %% SCIENCE CAMERA
 
 science = source('wavelength',photometry.K);
-cam = imager(telFull);
+cam = imager();
 telFull = telFull - atm;
 science = science.*telFull*cam;
 figure(31416)

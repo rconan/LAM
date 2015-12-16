@@ -214,7 +214,7 @@ TTAst = TTAst .* tel*QuadCell;
 
 %%
 science = source('wavelength',photometry.J);
-cam = imager(tel);
+cam = imager();
 %%
 % <latex>
 % The \oo{atmosphere} object is detached from the telescope and the
@@ -294,7 +294,7 @@ set(science,'logging',true)
 set(science,'phaseVar',[])
 lgsAst_slmmse.wavefrontSize = [dm.nValidActuator,1];
 lgsAst_slmmse.warmStart = true;
-cam.frameListener.Enabled = false;
+cam.frameListener.Enabled = true;
 
 gain_pol = 0.7;
 F = 2*bifaLowRes.modes(wfs.validActuator,:);
@@ -303,7 +303,7 @@ iF = pinv(full(F),1e-1);
 gain_cl = 0.4;
 u_ngs = zeros(dmLowRes.nValidActuator,1);
 
-QuadCell.camera.photonNoise = true;
+QuadCell.camera.photonNoise = false;
 %QuadCell.camera.readOutNoise = 0;
 
 wfs.camera.photonNoise = true;
@@ -346,7 +346,7 @@ for k=1:cam.startDelay + cam.exposureTime
     u_ngs = u_ngs - TTAst(1).wavelength/8*gain_cl*TT*mean(QuadCell.slopes,2); 
     
     % add ngs controls back to dm commands
-    dm.coefs = dm.coefs - u_ngs;
+    dm.coefs = dm.coefs - u_ngs*0;
     % Display
      set(h,'Cdata',catMeanRmPhase(science))
      drawnow
