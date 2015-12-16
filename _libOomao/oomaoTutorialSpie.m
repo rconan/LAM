@@ -132,8 +132,13 @@ atm = atmosphere(photometry.V,20e-2,30,...
 % telescope diameter \texttt{D} in meter and the sampling frequency \texttt{samplingFreq} in
 % Hz.
 % </latex>
+<<<<<<< HEAD
 nL   = 20;
 nPx  = 10;
+=======
+nL   = 60;
+nPx  = 6;
+>>>>>>> 0b283f6cff8557ab9894757326120a366200e290
 nRes = nL*nPx;
 D    = 8;
 d    = D/nL; % lenslet pitch
@@ -343,7 +348,7 @@ ngs = ngs.*tel;
 % it can be done in 1 step at the expense of requiring a lot of memory.
 % Here the process is divided in as many steps as actuators accross the pupil.
 % </latex>
-calibDm = calibration(dm,wfs,ngs,ngs.wavelength,nL+1,'cond',1e2);
+calibDm = calibration(dm,wfs,ngs,ngs.wavelength/8,nL+1,'cond',1e2);
 %%
 % <latex>
 % At the end of the calibration process, the interaction matrix is saved
