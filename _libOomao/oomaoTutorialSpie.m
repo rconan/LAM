@@ -132,10 +132,15 @@ atm = atmosphere(photometry.V,20e-2,30,...
 % telescope diameter \texttt{D} in meter and the sampling frequency \texttt{samplingFreq} in
 % Hz.
 % </latex>
+<<<<<<< HEAD
+nL   = 20;
+nPx  = 10;
+=======
 nL   = 60;
 nPx  = 6;
+>>>>>>> 0b283f6cff8557ab9894757326120a366200e290
 nRes = nL*nPx;
-D    = 25;
+D    = 8;
 d    = D/nL; % lenslet pitch
 samplingFreq = 500;
 %%
@@ -687,7 +692,7 @@ set(scienceCombo,'phaseVar',[])
 slmmse.wavefrontSize = [dm.nValidActuator,1];
 slmmse.warmStart = true;
 cam.startDelay   = startDelay;
-cam.frameListener.Enabled = false;
+cam.frameListener.Enabled = true;
 % set(ngsCombo,'magnitude',8)
 % wfs.camera.photonNoise = true;
 % wfs.camera.readOutNoise = 2;
@@ -708,8 +713,8 @@ for k=1:nIteration
     dm.coefs(:,2) = (1-gain_pol)*dm.coefs(:,2) + ...
         gain_pol*iF*( slmmse*( wfs.slopes(:,2) - calibDm.D*dm.coefs(:,2) ) );
     % Display
-%     set(h,'Cdata',catMeanRmPhase(scienceCombo))
-%     drawnow
+     set(h,'Cdata',catMeanRmPhase(scienceCombo))
+     drawnow
 end
 imagesc(cam)
 set(h,'Cdata',catMeanRmPhase(scienceCombo))

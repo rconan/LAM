@@ -20,7 +20,7 @@ atm = atmosphere(photometry.V0,r0,L0,...
 
 %% TELESCOPE
 nL   = 74;              % number of lenslets
-nPx  = 4;              % number of pixels per lenslet
+nPx  = 10;              % number of pixels per lenslet
 nRes = nL*nPx;          % resolution on the pupil plane (no of pixels)
 D    = 37;              % telescope primary mirror diameter
 d    = D/nL;            % lenslet pitch
@@ -33,7 +33,7 @@ tel = telescope(D,'resolution',nRes,...
 
 %% WAVE-FRONT SENSOR
 
-wfs = shackHartmann(nL,nRes,0.85);
+wfs = shackHartmann(nL,nRes,0.75);
 
 % WFS initialisation
 ngs = ngs.*tel*wfs;
@@ -123,10 +123,11 @@ ngs = ngs.*telLowRes;
 phase = ngs.meanRmOpd;
 
 %% LGS SOURCES
-lgsAst = source('asterism',{[6,arcsec(45),0]},'height',90e3,'magnitude',10);
+lgsAst = source('asterism',{[6,arcsec(25),0]},'height',90e3,'magnitude',10);
 figure, imagesc(tel, [ngs,lgsAst])
-% lgsAst(1% nGS = 6;
-% lgsAst = laserGuideStar(tel.D/nL,tel.D, 90e3, [], 2e6, [],'asterism',{[nGS,arcsec(20),0]}, 'wavelength', photometry.Na,'height',9e4);
+
+%lgsAst(1% nGS = 6;
+%lgsAst = laserGuideStar(tel.D/nL,tel.D, 90e3, [], 2e6, [],'asterism',{[nGS,arcsec(20),0]}, 'wavelength', photometry.Na,'height',9e4);
 % theta = linspace(0,2*pi-2*pi/nGS,nGS);
 % for iGS = 1:nGS
 %     lgsAst(iGS).viewPoint = D/2*[cos(theta), sin(theta)];
