@@ -1,4 +1,4 @@
-wclassdef fourierAdaptiveOptics < handle
+classdef fourierAdaptiveOptics < handle
     
     properties
         psf;
