@@ -133,7 +133,7 @@ atm = atmosphere(photometry.V,20e-2,30,...
 % Hz.
 % </latex>
 nL   = 60;
-nPx  = 10;
+nPx  = 6;
 nRes = nL*nPx;
 D    = 25;
 d    = D/nL; % lenslet pitch
@@ -343,7 +343,7 @@ ngs = ngs.*tel;
 % it can be done in 1 step at the expense of requiring a lot of memory.
 % Here the process is divided in as many steps as actuators accross the pupil.
 % </latex>
-calibDm = calibration(dm,wfs,ngs,ngs.wavelength,nL+1,'cond',1e2);
+calibDm = calibration(dm,wfs,ngs,ngs.wavelength/8,nL+1,'cond',1e2);
 %%
 % <latex>
 % At the end of the calibration process, the interaction matrix is saved
@@ -569,7 +569,7 @@ drawnow
 % Then, the science imaging camera is created with the class \oo{imager}.
 % </latex>
 science = source('wavelength',photometry.J);
-cam = imager(tel);
+cam = imager();
 %%
 % <latex>
 % The \oo{atmosphere} object is detached from the telescope and the

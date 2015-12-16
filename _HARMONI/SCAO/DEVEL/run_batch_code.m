@@ -24,7 +24,7 @@ atm = atmosphere(photometry.V0,0.1587,50,...
 
 
 %% TELESCOPE
-nL   = 10;%60; % E-ELT size
+nL   = 74;%60; % E-ELT size
 nPx  = 10;
 nRes = nL*nPx;
 D    = 37;
