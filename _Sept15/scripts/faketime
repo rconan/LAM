@@ -1,1 +1,0 @@
-faketime -f '+6y' hg ci -m "cleaning up" 

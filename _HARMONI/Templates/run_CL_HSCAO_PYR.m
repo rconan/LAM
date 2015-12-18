@@ -1,7 +1,12 @@
-clear all
-%close all
+%% INTRODUCTION
+%{
+This is the template file for the Harmoni-SCAO E2E simulation
+%}
 
-%% LOCAL DEFSs
+clear all
+close all
+
+%% LOCAL DEFINITIONS
 %load('/data/HARMONI/SCAO/TESTS/ESO_PupilM1_740.mat');
 %pupil = Masq_M1; clear Masq_M1;
 
@@ -10,85 +15,65 @@ clear all
 % static maps
 %load('/data/HARMONI/SCAO/TESTS/JEFF_HSFreq_740.mat');
 
+
 %% SOURCE
 ngs = source('wavelength',photometry.R); % R-band 
 
 %% ATMOSPHERE
 
-% atm = atmosphere(photometry.V0,0.1587,50,...
-%     'fractionnalR0',[0.5,0.3,0.2],'altitude',[0e3,5e3,12e3],...
-%     'windSpeed',[10,5,20],'windDirection',[0,pi/2,pi]);
+r0 = 0.1587;            % coherence lenght in meters at 0.5microns
+L0 = 30;                % Outer scale in meters
 
-atm = atmosphere(photometry.V0,0.1587,50,...
-    'fractionnalR0',[1],'altitude',[0e3],...
-    'windSpeed',[12],'windDirection',[0]);
+% Mono-layer atmosphere
+% atm = atmosphere(photometry.V0,r0,L0,...
+%     'fractionnalR0',[1],'altitude',[0e3],...
+%     'windSpeed',[12],'windDirection',[0]);
+
+% Multi-layer atmosphere
+atm = atmosphere(photometry.V0,r0,L0,...
+    'fractionnalR0',[0.5,0.3,0.2],'altitude',[0e3,4e3,10e3],...
+    'windSpeed',[5,10,20],'windDirection',[0,pi/4,pi]);
 
 
+
+
+% atm = atmosphere(photometry.V,0.15,30,...
+%     'altitude',[0,4,10]*1e3,...
+%     'fractionnalR0',[0.7,0.25,0.05],...
+%     'windSpeed',[5,10,20],...
+%     'windDirection',[0,pi/4,pi]);
 
 %% TELESCOPE
-nL   = 74;%60; % E-ELT size
-nPx  = 4;
-nRes = nL*nPx*2;
-D    = 37;
-d    = D/nL; % lenslet pitch
-samplingFreq = 500;
+nL   = 20;              % number of lenslets
+nPx  = 4*3;               % number of pixels per lenslet
+nRes = nL*nPx;          % resolution on the pupil plane (no of pixels)
+D    = 3.6*3;              % telescope primary mirror diameter
+d    = D/nL;            % lenslet pitch
+samplingFreq = 100;     % WFS sampling time
+obstructionRatio= 0.3;   % central obscuration ratio
+fieldOfViewInArcsec = 150; %fieldOfViewInArcsec
 
 tel = telescope(D,'resolution',nRes,...
-    'obstructionRatio',0.26,'fieldOfViewInArcsec',30,'samplingTime',1/samplingFreq);
-
-%tel.pupil = pupil;
-
+    'obstructionRatio',obstructionRatio,'fieldOfViewInArcsec',fieldOfViewInArcsec,'samplingTime',1/samplingFreq);
 
 %% WAVEFRONT SENSOR
-wfs = shackHartmann(nL,nPx*nL,0.5); %0.97
+%wfs = shackHartmann(nL,nPx*nL,0.5); %0.97
+wfs = pyramid(nL,nPx*nL,'modulation',6);
 
+% wfs INIT
 ngs = ngs.*tel*wfs;
-
 wfs.INIT
-
 +wfs;
 figure
 imagesc(wfs.camera,'parent',subplot(3,2,[1,4]))
 slopesDisplay(wfs,'parent',subplot(3,2,[5,6]))
-%%
+
 % The next 2 commands allow the displays of the frame and of the slopes to
 % be updated when a new frame and new slopes are computed
 wfs.camera.frameListener.Enabled = true;
 wfs.slopesListener.Enabled = true;
-%% SH-WFS GAIN CALIBRATION
-% The WFS must be calibrated such as for 1rd of tip--tilt wavefront , it will
-% measured a slopes of 1rd.
-% whereas the source is progressively moved off-axis
-wfs.pointingDirection = zeros(2,1);
 
-pixelScale = ngs.wavelength/...
-    (2*d*wfs.lenslets.nyquistSampling);
-tipStep = pixelScale/2;
-nStep   = floor(nPx/3)*2;
-sx      = zeros(1,nStep+1);
-u       = 0:nStep;
-wfs.camera.frameListener.Enabled = false;
-wfs.slopesListener.Enabled = false;
-warning('off','oomao:shackHartmann:relay')
-for kStep=u
-    ngs.zenith = -tipStep*kStep;
-    +ngs;
-    drawnow
-    sx(kStep+1) = median(wfs.slopes(1:end/2));
-end
-warning('on','oomao:shackHartmann:relay')
-Ox_in  = u*tipStep*constants.radian2arcsec;
-Ox_out = sx*ngs.wavelength/d/2*constants.radian2arcsec;
-%figure
-%plot(Ox_in,Ox_out)
-%grid
-slopesLinCoef = polyfit(Ox_in,Ox_out,1);
-wfs.slopesUnits = 1/slopesLinCoef(1);
 
-% The source is reset on--axis and the WFS is set to always be aligned to
-% the source by setting \oop{shackHartmann}{pointingDirection} to empty.
-ngs.zenith = 0;
-wfs.pointingDirection = [];
 %% DEFORMABLE MIRROR
 
 couplingCoeff = 0.4;
@@ -101,57 +86,60 @@ dm = deformableMirror(nL+1,'modes',bifa,...
     'validActuator',wfs.validActuator);
 
 % CASE 2: M4 actuator locations
-bifM4 = influenceFunction('monotonic',couplingCoeff); 
-m4 = load('../Coord_RepHexa');
-pitch = 31.5e-3*2;
-bifM4.actuatorCoord =  (m4.Centres_Act(:,1) + 1j*m4.Centres_Act(:,2))/pitch;
-dm = deformableMirror(m4.nb_act,'modes',bifM4,'resolution',tel.resolution,...
-    'validActuator',true(1,m4.nb_act)); 
-
-
-figure,show(bifM4,'parent',subplot(1,2,1))
-axis square
-title('Monototic influence function')% The markers in the figures correspond to, from left to right, the points $P_k$ from $k=0$ to 6.
-
-subplot(1,2,2)
-scatter(m4.Centres_Act(:,1)/pitch, m4.Centres_Act(:,2)/pitch)
-title('M4 actuator locations')
-axis tight square
-box on
+% bifM4 = influenceFunction('monotonic',couplingCoeff); 
+% m4 = load('../Coord_RepHexa');
+% pitch = 31.5e-3*2;
+% bifM4.actuatorCoord =  (m4.Centres_Act(:,1) + 1j*m4.Centres_Act(:,2))/pitch;
+% dm = deformableMirror(m4.nb_act,'modes',bifM4,'resolution',tel.resolution,...
+%     'validActuator',true(1,m4.nb_act)); 
+% 
+% 
+% figure,show(bifM4,'parent',subplot(1,2,1))
+% axis square
+% title('Monototic influence function')% The markers in the figures correspond to, from left to right, the points $P_k$ from $k=0$ to 6.
+% 
+% subplot(1,2,2)
+% scatter(m4.Centres_Act(:,1)/pitch, m4.Centres_Act(:,2)/pitch)
+% title('M4 actuator locations')
+% axis tight square
+% box on
 
 
 %% INTERACTION MATRIX
-% Lets switch off the display automatic update:
+% Switch off the display automatic update
 wfs.camera.frameListener.Enabled = false;
 wfs.slopesListener.Enabled = false;
 
-% and setup the optical path before the DM/WFS subsystem:
+% Setup the optical path before the DM/WFS subsystem
 ngs = ngs.*tel;
+%calibDm = calibration(dm,wfs,ngs,ngs.wavelength/40,nL+1,'cond',1e2);
+calibDm =  calibration(dm,wfs,ngs,ngs.wavelength/100);
+%%
+calibDm.nThresholded = 5;
 
-calibDm = calibration(dm,wfs,ngs,ngs.wavelength/8,nL+1,'cond',1e2);
+%% CLOSED-LOOP NGS AO SYSTEM
 
-%% WAVEFRONT ESTIMATION
-
+%% GENERATE ATMOSPHERE
 tel = tel + atm;
 figure
 imagesc(tel)
 ngs = ngs.*tel*wfs;
 
 
-%% Closed--loop NGS AO systems
+%% SCIENCE CAMERA
 science = source('wavelength',photometry.K);
 cam = imager();
-%%
+%
 tel = tel - atm;
 science = science.*tel*cam;
 figure(31416)
 imagesc(cam,'parent',subplot(2,1,1))
 %cam.frameListener.Enabled = true;
-%%
+%
 cam.referenceFrame = cam.frame;
 +science;
 fprintf('Strehl ratio: %4.1f\n',cam.strehl)
-%%
+%
 tel = tel + atm;
 +science;
 fprintf('Strehl ratio: %4.1f\n',cam.strehl)
@@ -167,7 +155,7 @@ fprintf('Strehl ratio: %4.1f\n',cam.strehl)
 tel = tel + atm;
 dm.coefs = zeros(dm.nValidActuator,1);
 
-ngs = source('zenith',zeros(1,1),'azimuth',zeros(1,1),'magnitude',12,'wavelength',photometry.R);
+ngs = source('zenith',zeros(1,1),'azimuth',zeros(1,1),'magnitude',8,'wavelength',photometry.R);
 %ngsCombo = ngsCombo.*tel*StaticWaveNGS*dm*wfs;
 ngs = ngs.*tel*dm*wfs;
 s = source('zenith',zeros(1,1),'azimuth',zeros(1,1),'wavelength',photometry.K);
@@ -222,6 +210,9 @@ for k=1:nIteration
      drawnow
      
      wfsSlopesStack = wfs.slopes;
+     
+     % Variance of the residual wavefront
+     residue(k) = var(ngs);
 end
 imagesc(cam)
 set(h,'Cdata',catMeanRmPhase(science))
@@ -230,7 +221,7 @@ set(h,'Cdata',catMeanRmPhase(science))
 var_wfe_lsq = reshape(science(1).phaseVar(1:nIteration*2),2,[])';
 wfe_lsq = sqrt(var_wfe_lsq)/science(1).waveNumber*1e6;
 atm_wfe_rms = sqrt(zernikeStats.residualVariance(1,atm,tel))/ngs.waveNumber*1e6;
-marechalStrehl_lsq = 1e2*exp(-mean(var_wfe_lsq(startDelay:end,2)));
+marechalStrehl_lsq = 1e2*exp(-mean(var_wfe_lsq(startDelay:end,2)))
 psfStrehl = 1e2*cam.strehl
 text(50,60,['PSF Strehl:' num2str(psfStrehl) '%'])
 
@@ -239,4 +230,12 @@ var_fit = 0.23*(d/atm.r0)^(5/3)*(atm.wavelength/science(1).wavelength)^2;
 var_alias = 0.07*(d/atm.r0)^(5/3)*(atm.wavelength/science(1).wavelength)^2;
 var_tempo = phaseStats.closedLoopVariance(atm, tel.samplingTime,0.001,gain_cl)*(atm.wavelength/science(1).wavelength)^2;
 marechalStrehl_lsq_theoretical = 100*exp(-var_fit-var_alias-var_tempo)
+
+figure(31416)
 text(50,170,['Marechal approx:' num2str(100*marechalStrehl_lsq_theoretical) '%'])
+
+% Phase variance to micron rms converter 
+rmsMicron = @(x) 1e6*sqrt(x).*ngs.wavelength/2/pi;
+mean(rmsMicron(residue(startDelay:end)))
+
+

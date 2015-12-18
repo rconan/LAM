@@ -132,10 +132,15 @@ atm = atmosphere(photometry.V,20e-2,30,...
 % telescope diameter \texttt{D} in meter and the sampling frequency \texttt{samplingFreq} in
 % Hz.
 % </latex>
-nL   = 60;
+<<<<<<< HEAD
+nL   = 20;
 nPx  = 10;
+=======
+nL   = 60;
+nPx  = 6;
+>>>>>>> 0b283f6cff8557ab9894757326120a366200e290
 nRes = nL*nPx;
-D    = 25;
+D    = 8;
 d    = D/nL; % lenslet pitch
 samplingFreq = 500;
 %%
@@ -343,7 +348,7 @@ ngs = ngs.*tel;
 % it can be done in 1 step at the expense of requiring a lot of memory.
 % Here the process is divided in as many steps as actuators accross the pupil.
 % </latex>
-calibDm = calibration(dm,wfs,ngs,ngs.wavelength,nL+1,'cond',1e2);
+calibDm = calibration(dm,wfs,ngs,ngs.wavelength/8,nL+1,'cond',1e2);
 %%
 % <latex>
 % At the end of the calibration process, the interaction matrix is saved
@@ -569,7 +574,7 @@ drawnow
 % Then, the science imaging camera is created with the class \oo{imager}.
 % </latex>
 science = source('wavelength',photometry.J);
-cam = imager(tel);
+cam = imager();
 %%
 % <latex>
 % The \oo{atmosphere} object is detached from the telescope and the
@@ -687,7 +692,7 @@ set(scienceCombo,'phaseVar',[])
 slmmse.wavefrontSize = [dm.nValidActuator,1];
 slmmse.warmStart = true;
 cam.startDelay   = startDelay;
-cam.frameListener.Enabled = false;
+cam.frameListener.Enabled = true;
 % set(ngsCombo,'magnitude',8)
 % wfs.camera.photonNoise = true;
 % wfs.camera.readOutNoise = 2;
@@ -708,8 +713,8 @@ for k=1:nIteration
     dm.coefs(:,2) = (1-gain_pol)*dm.coefs(:,2) + ...
         gain_pol*iF*( slmmse*( wfs.slopes(:,2) - calibDm.D*dm.coefs(:,2) ) );
     % Display
-%     set(h,'Cdata',catMeanRmPhase(scienceCombo))
-%     drawnow
+     set(h,'Cdata',catMeanRmPhase(scienceCombo))
+     drawnow
 end
 imagesc(cam)
 set(h,'Cdata',catMeanRmPhase(scienceCombo))

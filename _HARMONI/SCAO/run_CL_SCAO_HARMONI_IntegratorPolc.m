@@ -1,5 +1,5 @@
 clear all
-%close all
+close all
 
 %% LOCAL DEFSs
 %load('/data/HARMONI/SCAO/TESTS/ESO_PupilM1_740.mat');
@@ -27,8 +27,8 @@ atm = atmosphere(photometry.V0,0.1587,50,...
 
 %% TELESCOPE
 nL   = 74;%60; % E-ELT size
-nPx  = 4;
-nRes = nL*nPx*2;
+nPx  = 10;
+nRes = nL*nPx;
 D    = 37;
 d    = D/nL; % lenslet pitch
 samplingFreq = 500;
@@ -40,7 +40,7 @@ tel = telescope(D,'resolution',nRes,...
 
 
 %% WAVEFRONT SENSOR
-wfs = shackHartmann(nL,nPx*nL,0.5); %0.97
+wfs = shackHartmann(nL,nRes,0.5);
 
 ngs = ngs.*tel*wfs;
 
@@ -91,7 +91,7 @@ ngs.zenith = 0;
 wfs.pointingDirection = [];
 %% DEFORMABLE MIRROR
 
-couplingCoeff = 0.4;
+couplingCoeff = 0.3;
 
 % CASE 1: Fried topology (Certesian regular grid)
 bifa = influenceFunction('monotonic',couplingCoeff);
@@ -100,24 +100,36 @@ dm = deformableMirror(nL+1,'modes',bifa,...
     'resolution',tel.resolution,...
     'validActuator',wfs.validActuator);
 
-% CASE 2: M4 actuator locations
-bifM4 = influenceFunction('monotonic',couplingCoeff); 
-m4 = load('../Coord_RepHexa');
-pitch = 31.5e-3*2;
-bifM4.actuatorCoord =  (m4.Centres_Act(:,1) + 1j*m4.Centres_Act(:,2))/pitch;
-dm = deformableMirror(m4.nb_act,'modes',bifM4,'resolution',tel.resolution,...
-    'validActuator',true(1,m4.nb_act)); 
-
-
-figure,show(bifM4,'parent',subplot(1,2,1))
+figure,show(bifa,'parent',subplot(1,2,1))
 axis square
 title('Monototic influence function')% The markers in the figures correspond to, from left to right, the points $P_k$ from $k=0$ to 6.
 
 subplot(1,2,2)
-scatter(m4.Centres_Act(:,1)/pitch, m4.Centres_Act(:,2)/pitch)
-title('M4 actuator locations')
+spy(dm.validActuator)
+title('M4 carterian actuator locations')
 axis tight square
 box on
+
+%%
+% CASE 2: M4 actuator locations
+% bifM4 = influenceFunction('monotonic',couplingCoeff); 
+% m4 = load('../Coord_RepHexa');
+% pitch = 31.5e-3*2;
+% bifM4.actuatorCoord =  (m4.Centres_Act(:,1) + 1j*m4.Centres_Act(:,2))/pitch;
+% dm = deformableMirror(m4.nb_act,'modes',bifM4,'resolution',tel.resolution,...
+%     'validActuator',true(1,m4.nb_act)); 
+% 
+% figure,show(bifM4,'parent',subplot(1,2,1))
+% axis square
+% title('Monototic influence function')% The markers in the figures correspond to, from left to right, the points $P_k$ from $k=0$ to 6.
+% 
+% subplot(1,2,2)
+% scatter(m4.Centres_Act(:,1)/pitch, m4.Centres_Act(:,2)/pitch)
+% title('M4 actuator locations')
+% axis tight square
+% box on
+
+
 
 
 %% INTERACTION MATRIX
@@ -128,7 +140,7 @@ wfs.slopesListener.Enabled = false;
 % and setup the optical path before the DM/WFS subsystem:
 ngs = ngs.*tel;
 
-calibDm = calibration(dm,wfs,ngs,ngs.wavelength/8,nL+1,'cond',1e2);
+calibDm = calibration(dm,wfs,ngs,ngs.wavelength,nL+1,'cond',1e2);
 
 %% WAVEFRONT ESTIMATION
 
@@ -136,7 +148,38 @@ tel = tel + atm;
 figure
 imagesc(tel)
 ngs = ngs.*tel*wfs;
+%%
+% prepare the matrices for the POLCs
+telLowRes = telescope(tel.D,'resolution',nL+1,...
+    'fieldOfViewInArcsec',30,'samplingTime',1/500);
+telLowRes.pupil = wfs.validActuator;
+%%
 
+telLowRes= telLowRes + atm;
+ngs = ngs.*telLowRes;
+phase = ngs.meanRmOpd;
+
+bifaLowRes = influenceFunction('monotonic',couplingCoeff);
+dmLowRes = deformableMirror(nL+1,'modes',bifaLowRes,'resolution',nL+1,...
+    'validActuator',wfs.validActuator);
+
+
+
+% CASE 2: M4 actuator locations
+% bifM4LowRes = influenceFunction('monotonic',couplingCoeff); 
+% bifM4LowRes.actuatorCoord =  (m4.Centres_Act(:,1) + 1j*m4.Centres_Act(:,2))/pitch;
+% dmLowRes = deformableMirror(m4.nb_act,'modes',bifM4LowRes,'resolution',nL+1,...
+%     'validActuator',true(1,m4.nb_act)); 
+
+
+%%
+slmmse = slopesLinearMMSE(wfs,tel,atm,ngs,'mmseStar',ngs);
+
+%%
+F = 2*bifaLowRes.modes(wfs.validActuator,:);
+%F = 2*bifaLowRes.modes(true(1,m4.nb_act),:);
+
+iF = pinv(full(F),1e-1);
 
 %% Closed--loop NGS AO systems
 science = source('wavelength',photometry.K);
@@ -156,87 +199,101 @@ tel = tel + atm;
 +science;
 fprintf('Strehl ratio: %4.1f\n',cam.strehl)
 
-%% STATIC AND QUASI STATIC ABERRATIONS
-
+%% STATIC ABERRATIONS ADDED TO THE OPTICAL PATH
 %StaticWaveNGS = {tel.pupil;JEFF_HSFOptim*ngs.waveNumber*0}; % l'amplitude complexe {amplitude;phase} 
 %StaticWaveSCI = {tel.pupil;JEFF_HSFOptim*science.waveNumber*0}; % l'amplitude complexe {amplitude;phase} 
-% expected loss of performance from static aberration if dm cannot fit it
-%exp(-var(StaticWaveSCI{2}(tel.pupilLogical)))
 
 %% SOURCE OBJECTS
 tel = tel + atm;
 dm.coefs = zeros(dm.nValidActuator,1);
 
-ngs = source('zenith',zeros(1,1),'azimuth',zeros(1,1),'magnitude',12,'wavelength',photometry.R);
+ngsCombo = source('zenith',zeros(2,1),'azimuth',zeros(2,1),'magnitude',12,'wavelength',photometry.R);
 %ngsCombo = ngsCombo.*tel*StaticWaveNGS*dm*wfs;
-ngs = ngs.*tel*dm*wfs;
-s = source('zenith',zeros(1,1),'azimuth',zeros(1,1),'wavelength',photometry.K);
+ngsCombo = ngsCombo.*tel*dm*wfs;
+scienceCombo = source('zenith',zeros(2,1),'azimuth',zeros(2,1),'wavelength',photometry.K);
 %scienceCombo = scienceCombo.*tel*StaticWaveSCI*dm*cam;
-science = science.*tel*dm*cam;
+scienceCombo = scienceCombo.*tel*dm*cam;
 
-%% %% LOOP INIT
+% expected loss of performance from static aberration if dm cannot fit it
+%exp(-var(StaticWaveSCI{2}(tel.pupilLogical)))
+
+%% LOOP INIT
 
 flush(cam)
 cam.frame = cam.frame*0;
 cam.clockRate    = 1;
-exposureTime     = 100;
+exposureTime     = 10;
 cam.exposureTime = exposureTime;
-startDelay       = 20;
+startDelay       = 2;
 figure(31416)
 imagesc(cam,'parent',subplot(2,1,1))
 % cam.frameListener.Enabled = true;
 subplot(2,1,2)
-h = imagesc(catMeanRmPhase(science));
+h = imagesc(catMeanRmPhase(scienceCombo));
 axis xy equal tight
 colorbar
 
 
 %%
 gain_cl  = 0.5;
+gain_pol = 0.7;
 
-dm.coefs = zeros(dm.nValidActuator,1);
+
+dm.coefs = zeros(dm.nValidActuator,2);
 flush(cam)
-set(science,'logging',true)
-set(science,'phaseVar',[])
+set(scienceCombo,'logging',true)
+set(scienceCombo,'phaseVar',[])
+slmmse.wavefrontSize = [dm.nValidActuator,1];
+slmmse.warmStart = true;
 cam.startDelay   = startDelay;
 cam.frameListener.Enabled = true;
-
-wfs.camera.photonNoise = false;
-wfs.camera.readOutNoise = 0;
+% set(ngsCombo,'magnitude',8)
+wfs.camera.photonNoise = true;
+wfs.camera.readOutNoise = 1;
 wfs.framePixelThreshold = wfs.camera.readOutNoise;
 
  %% CLOSED LOOP ITERATION
 % The loop is closed for one full exposure of the science camera.
 nIteration = startDelay + exposureTime;
-wfsSlopesStack = zeros(wfs.nSlope,1);
+wfsSlopesStack = zeros(wfs.nSlope,2);
 for k=1:nIteration
     % Objects update
     +tel;
-    +ngs;
-    +science;
+    +ngsCombo;
+    +scienceCombo;
     % Closed-loop controller
     dm.coefs(:,1) = dm.coefs(:,1) - gain_cl*calibDm.M*wfsSlopesStack(:,1);    
     
+    % Pseudo-open-loop controller
+    dm.coefs(:,2) = (1-gain_pol)*dm.coefs(:,2) + ...
+        gain_pol*iF*( slmmse*( wfsSlopesStack(:,2) - calibDm.D*dm.coefs(:,2) ) );
+    
     % Display
-     set(h,'Cdata',catMeanRmPhase(science))
+     set(h,'Cdata',catMeanRmPhase(scienceCombo))
      drawnow
      
      wfsSlopesStack = wfs.slopes;
+
 end
 imagesc(cam)
-set(h,'Cdata',catMeanRmPhase(science))
-%% PERFORMANCE ANALYSIS FROM LOOP TELEMETRY
+set(h,'Cdata',catMeanRmPhase(scienceCombo))
+%% PERFORMANCE ANALYSIS FROM LOOP TELEMETRYs
 
-var_wfe_lsq = reshape(science(1).phaseVar(1:nIteration*2),2,[])';
-wfe_lsq = sqrt(var_wfe_lsq)/science(1).waveNumber*1e6;
+var_wfe_lsq = reshape(scienceCombo(1).phaseVar(1:nIteration*2),2,[])';
+wfe_lsq = sqrt(var_wfe_lsq)/scienceCombo(1).waveNumber*1e6;
+%var_wfe_lmmse = reshape(scienceCombo(2).phaseVar(1:nIteration*2),2,[])';
+%wfe_lmmse = sqrt(var_wfe_lmmse)/scienceCombo(1).waveNumber*1e6;
 atm_wfe_rms = sqrt(zernikeStats.residualVariance(1,atm,tel))/ngs.waveNumber*1e6;
 marechalStrehl_lsq = 1e2*exp(-mean(var_wfe_lsq(startDelay:end,2)));
+%marechalStrehl_lmmse = 1e2*exp(-mean(var_wfe_lmmse(startDelay:end,2)));
 psfStrehl = 1e2*cam.strehl
 text(50,60,['PSF Strehl:' num2str(psfStrehl) '%'])
 
 %% THEORETICAL PERFORMANCE ANALYSIS - CASE OF THE SINGLE INTEGRATOR LOOP WITH GAIN
-var_fit = 0.23*(d/atm.r0)^(5/3)*(atm.wavelength/science(1).wavelength)^2;
-var_alias = 0.07*(d/atm.r0)^(5/3)*(atm.wavelength/science(1).wavelength)^2;
-var_tempo = phaseStats.closedLoopVariance(atm, tel.samplingTime,0.001,gain_cl)*(atm.wavelength/science(1).wavelength)^2;
-marechalStrehl_lsq_theoretical = 100*exp(-var_fit-var_alias-var_tempo)
-text(50,170,['Marechal approx:' num2str(100*marechalStrehl_lsq_theoretical) '%'])
+var_fit = 0.23*(d/atm.r0)^(5/3)*(atm.wavelength/scienceCombo(1).wavelength)^2;
+var_alias = 0.07*(d/atm.r0)^(5/3)*(atm.wavelength/scienceCombo(1).wavelength)^2;
+var_tempo = phaseStats.closedLoopVariance(atm, tel.samplingTime,0.001,gain_cl)*(atm.wavelength/scienceCombo(1).wavelength)^2;
+
+figure(31416)
+marechalStrehl_lsq_theoretical = exp(-var_fit-var_alias-var_tempo)
+text(50,100,['Marechal approx:' num2str(marechalStrehl_lsq_theoretical) '%'])

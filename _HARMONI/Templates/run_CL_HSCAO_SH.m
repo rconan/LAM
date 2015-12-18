@@ -1,7 +1,12 @@
-clear all
-%close all
+%% INTRODUCTION
+%{
+This is the template file for the Harmoni-SCAO E2E simulation
+%}
 
-%% LOCAL DEFSs
+clear all
+close all
+
+%% LOCAL DEFINITIONS
 %load('/data/HARMONI/SCAO/TESTS/ESO_PupilM1_740.mat');
 %pupil = Masq_M1; clear Masq_M1;
 
@@ -10,51 +15,56 @@ clear all
 % static maps
 %load('/data/HARMONI/SCAO/TESTS/JEFF_HSFreq_740.mat');
 
+
 %% SOURCE
 ngs = source('wavelength',photometry.R); % R-band 
 
 %% ATMOSPHERE
 
-% atm = atmosphere(photometry.V0,0.1587,50,...
+r0 = 0.1587;            % coherence lenght in meters at 0.5microns
+L0 = 30;                % Outer scale in meters
+
+% Multi-layer atmosphere
+% atm = atmosphere(photometry.V0,r0,L0,...
 %     'fractionnalR0',[0.5,0.3,0.2],'altitude',[0e3,5e3,12e3],...
 %     'windSpeed',[10,5,20],'windDirection',[0,pi/2,pi]);
 
-atm = atmosphere(photometry.V0,0.1587,50,...
+
+% Mono-layer atmosphere
+atm = atmosphere(photometry.V0,r0,L0,...
     'fractionnalR0',[1],'altitude',[0e3],...
     'windSpeed',[12],'windDirection',[0]);
 
 
-
 %% TELESCOPE
-nL   = 74;%60; % E-ELT size
-nPx  = 4;
-nRes = nL*nPx*2;
-D    = 37;
-d    = D/nL; % lenslet pitch
-samplingFreq = 500;
+nL   = 74;              % number of lenslets
+nPx  = 4;               % number of pixels per lenslet
+nRes = nL*nPx;          % resolution on the pupil plane (no of pixels)
+D    = 37;              % telescope primary mirror diameter
+d    = D/nL;            % lenslet pitch
+samplingFreq = 500;     % WFS sampling time
+obstructionRatio=0.3;   % central obscuration ratio
+fieldOfViewInArcsec = 120; %fieldOfViewInArcsec
 
 tel = telescope(D,'resolution',nRes,...
     'obstructionRatio',0.26,'fieldOfViewInArcsec',30,'samplingTime',1/samplingFreq);
 
-%tel.pupil = pupil;
-
-
 %% WAVEFRONT SENSOR
 wfs = shackHartmann(nL,nPx*nL,0.5); %0.97
 
+% wfs INIT
 ngs = ngs.*tel*wfs;
-
 wfs.INIT
-
 +wfs;
 figure
 imagesc(wfs.camera,'parent',subplot(3,2,[1,4]))
 slopesDisplay(wfs,'parent',subplot(3,2,[5,6]))
-%%
+
 % The next 2 commands allow the displays of the frame and of the slopes to
 % be updated when a new frame and new slopes are computed
 wfs.camera.frameListener.Enabled = true;
 wfs.slopesListener.Enabled = true;
+
 %% SH-WFS GAIN CALIBRATION
 % The WFS must be calibrated such as for 1rd of tip--tilt wavefront , it will
 % measured a slopes of 1rd.
@@ -89,6 +99,7 @@ wfs.slopesUnits = 1/slopesLinCoef(1);
 % the source by setting \oop{shackHartmann}{pointingDirection} to empty.
 ngs.zenith = 0;
 wfs.pointingDirection = [];
+
 %% DEFORMABLE MIRROR
 
 couplingCoeff = 0.4;
@@ -102,7 +113,7 @@ dm = deformableMirror(nL+1,'modes',bifa,...
 
 % CASE 2: M4 actuator locations
 bifM4 = influenceFunction('monotonic',couplingCoeff); 
-m4 = load('../Coord_RepHexa');
+m4 = load('../_inputData/Coord_RepHexa');
 pitch = 31.5e-3*2;
 bifM4.actuatorCoord =  (m4.Centres_Act(:,1) + 1j*m4.Centres_Act(:,2))/pitch;
 dm = deformableMirror(m4.nb_act,'modes',bifM4,'resolution',tel.resolution,...
@@ -121,37 +132,38 @@ box on
 
 
 %% INTERACTION MATRIX
-% Lets switch off the display automatic update:
+% Switch off the display automatic update
 wfs.camera.frameListener.Enabled = false;
 wfs.slopesListener.Enabled = false;
 
-% and setup the optical path before the DM/WFS subsystem:
+% Setup the optical path before the DM/WFS subsystem
 ngs = ngs.*tel;
-
 calibDm = calibration(dm,wfs,ngs,ngs.wavelength/8,nL+1,'cond',1e2);
 
-%% WAVEFRONT ESTIMATION
 
+%% CLOSED-LOOP NGS AO SYSTEM
+
+%% GENERATE ATMOSPHERE
 tel = tel + atm;
 figure
 imagesc(tel)
 ngs = ngs.*tel*wfs;
 
 
-%% Closed--loop NGS AO systems
+%% SCIENCE CAMERA
 science = source('wavelength',photometry.K);
 cam = imager();
-%%
+%
 tel = tel - atm;
 science = science.*tel*cam;
 figure(31416)
 imagesc(cam,'parent',subplot(2,1,1))
 %cam.frameListener.Enabled = true;
-%%
+%
 cam.referenceFrame = cam.frame;
 +science;
 fprintf('Strehl ratio: %4.1f\n',cam.strehl)
-%%
+%
 tel = tel + atm;
 +science;
 fprintf('Strehl ratio: %4.1f\n',cam.strehl)
@@ -201,8 +213,8 @@ set(science,'phaseVar',[])
 cam.startDelay   = startDelay;
 cam.frameListener.Enabled = true;
 
-wfs.camera.photonNoise = false;
-wfs.camera.readOutNoise = 0;
+wfs.camera.photonNoise = true;
+wfs.camera.readOutNoise = 1;
 wfs.framePixelThreshold = wfs.camera.readOutNoise;
 
  %% CLOSED LOOP ITERATION
@@ -239,4 +251,6 @@ var_fit = 0.23*(d/atm.r0)^(5/3)*(atm.wavelength/science(1).wavelength)^2;
 var_alias = 0.07*(d/atm.r0)^(5/3)*(atm.wavelength/science(1).wavelength)^2;
 var_tempo = phaseStats.closedLoopVariance(atm, tel.samplingTime,0.001,gain_cl)*(atm.wavelength/science(1).wavelength)^2;
 marechalStrehl_lsq_theoretical = 100*exp(-var_fit-var_alias-var_tempo)
+
+figure(31416)
 text(50,170,['Marechal approx:' num2str(100*marechalStrehl_lsq_theoretical) '%'])

@@ -1,0 +1,715 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>run_CL_HSCAO_PYR</title><meta name="generator" content="MATLAB 8.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-12-14"><meta name="DC.source" content="run_CL_HSCAO_PYR.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">INTRODUCTION</a></li><li><a href="#2">LOCAL DEFINITIONS</a></li><li><a href="#3">SOURCE</a></li><li><a href="#4">ATMOSPHERE</a></li><li><a href="#5">TELESCOPE</a></li><li><a href="#6">WAVEFRONT SENSOR</a></li><li><a href="#7">DEFORMABLE MIRROR</a></li><li><a href="#8">INTERACTION MATRIX</a></li><li><a href="#10">CLOSED-LOOP NGS AO SYSTEM</a></li><li><a href="#11">GENERATE ATMOSPHERE</a></li><li><a href="#12">SCIENCE CAMERA</a></li><li><a href="#13">STATIC AND QUASI STATIC ABERRATIONS</a></li><li><a href="#14">SOURCE OBJECTS</a></li><li><a href="#15">%% LOOP INIT</a></li><li><a href="#17">CLOSED LOOP ITERATION</a></li><li><a href="#18">PERFORMANCE ANALYSIS FROM LOOP TELEMETRY</a></li><li><a href="#19">THEORETICAL PERFORMANCE ANALYSIS - CASE OF THE SINGLE INTEGRATOR LOOP WITH GAIN</a></li></ul></div><h2>INTRODUCTION<a name="1"></a></h2><pre class="codeinput"><span class="comment">%{
+</span><span class="comment">This is the template file for the Harmoni-SCAO E2E simulation
+</span><span class="comment">%}
+</span>
+clear <span class="string">all</span>
+close <span class="string">all</span>
+</pre><pre class="codeoutput"> @(source)&gt; Terminated!
+ @(calibration vault)&gt; Terminated!
+ @(telescope)&gt; Deleting atmosphere layer slabs!
+ @(telescope)&gt; Terminated!
+ @(atmosphere)&gt; Terminated!
+ @(deformable mirror)&gt; Terminated!
+ @(bezier influence fun)&gt; Terminated!
+ @(source)&gt; Terminated!
+ @(source)&gt; Terminated!
+</pre><h2>LOCAL DEFINITIONS<a name="2"></a></h2><pre class="codeinput"><span class="comment">%load('/data/HARMONI/SCAO/TESTS/ESO_PupilM1_740.mat');</span>
+<span class="comment">%pupil = Masq_M1; clear Masq_M1;</span>
+
+<span class="comment">%load('/data/HARMONI/SCAO/TESTS/MAT_FI_M4_740.mat');</span>
+<span class="comment">%load('/data/HARMONI/SCAO/SIMUL_MORGAN/MIROIR_M4/MAT_FI_M4_740.mat')</span>
+<span class="comment">% static maps</span>
+<span class="comment">%load('/data/HARMONI/SCAO/TESTS/JEFF_HSFreq_740.mat');</span>
+</pre><h2>SOURCE<a name="3"></a></h2><pre class="codeinput">ngs = source(<span class="string">'wavelength'</span>,photometry.R); <span class="comment">% R-band</span>
+</pre><pre class="codeoutput">~~~~~~~~~~~~~~~~~~~
+ BEWARE OF OOMAO!
+~~~~~~~~~~~~~~~~~~~
+ @(logBook)&gt; Opening the log book!
+ @(source)&gt; Created!
+___ SOURCE ___
+ Obj   zen[arcsec] azim[deg]  height[m]  lambda[micron] magnitude
+  1      0.00        0.00         Inf     0.640           0.00
+----------------------------------------------------
+</pre><h2>ATMOSPHERE<a name="4"></a></h2><pre class="codeinput">r0 = 0.1587;            <span class="comment">% coherence lenght in meters at 0.5microns</span>
+L0 = 30;                <span class="comment">% Outer scale in meters</span>
+
+<span class="comment">% Mono-layer atmosphere</span>
+atm = atmosphere(photometry.V0,r0,L0,<span class="keyword">...</span>
+    <span class="string">'fractionnalR0'</span>,[1],<span class="string">'altitude'</span>,[0e3],<span class="keyword">...</span>
+    <span class="string">'windSpeed'</span>,[12],<span class="string">'windDirection'</span>,[0]);
+
+<span class="comment">% Multi-layer atmosphere</span>
+atm = atmosphere(photometry.V0,r0,L0,<span class="keyword">...</span>
+    <span class="string">'fractionnalR0'</span>,[0.5,0.3,0.2],<span class="string">'altitude'</span>,[0e3,4e3,10e3],<span class="keyword">...</span>
+    <span class="string">'windSpeed'</span>,[5,10,20],<span class="string">'windDirection'</span>,[0,pi/4,pi]);
+
+
+
+
+<span class="comment">% atm = atmosphere(photometry.V,0.15,30,...</span>
+<span class="comment">%     'altitude',[0,4,10]*1e3,...</span>
+<span class="comment">%     'fractionnalR0',[0.7,0.25,0.05],...</span>
+<span class="comment">%     'windSpeed',[5,10,20],...</span>
+<span class="comment">%     'windDirection',[0,pi/4,pi]);</span>
+</pre><pre class="codeoutput"> @(atmosphere)&gt; Created!
+___ ATMOSPHERE ___
+ Von Karman atmospheric turbulence
+  . wavelength  =  0.50micron,
+  . r0          = 15.87cm,
+  . L0          = 30.00m,
+  . seeing      =  0.64arcsec,
+  . tau0(37%)   =  7.27millisec
+----------------------------------------------------
+  Layer   Altitude[m]   fr0    wind([m/s] [deg])   D[m]    res[px]
+   1          0.00      1.00    (12.00   0.00)         
+----------------------------------------------------
+ @(atmosphere)&gt; Created!
+___ ATMOSPHERE ___
+ Von Karman atmospheric turbulence
+  . wavelength  =  0.50micron,
+  . r0          = 15.87cm,
+  . L0          = 30.00m,
+  . seeing      =  0.64arcsec,
+  . theta0(37%) =  4.15arcsec,
+  . tau0(37%)   =  8.42millisec
+----------------------------------------------------
+  Layer   Altitude[m]   fr0    wind([m/s] [deg])   D[m]    res[px]
+   1          0.00      0.50    ( 5.00   0.00)         
+   2       4000.00      0.30    (10.00  45.00)         
+   3      10000.00      0.20    (20.00 180.00)         
+----------------------------------------------------
+ @(atmosphere)&gt; Terminated!
+</pre><h2>TELESCOPE<a name="5"></a></h2><pre class="codeinput">nL   = 10;              <span class="comment">% number of lenslets</span>
+nPx  = 6;               <span class="comment">% number of pixels per lenslet</span>
+nRes = nL*nPx;          <span class="comment">% resolution on the pupil plane (no of pixels)</span>
+D    = 8;              <span class="comment">% telescope primary mirror diameter</span>
+d    = D/nL;            <span class="comment">% lenslet pitch</span>
+samplingFreq = 100;     <span class="comment">% WFS sampling time</span>
+obstructionRatio= 0.3;   <span class="comment">% central obscuration ratio</span>
+fieldOfViewInArcsec = 150; <span class="comment">%fieldOfViewInArcsec</span>
+
+tel = telescope(D,<span class="string">'resolution'</span>,nRes,<span class="keyword">...</span>
+    <span class="string">'obstructionRatio'</span>,obstructionRatio,<span class="string">'fieldOfViewInArcsec'</span>,fieldOfViewInArcsec,<span class="string">'samplingTime'</span>,1/samplingFreq);
+</pre><pre class="codeoutput"> @(telescope)&gt; Created!
+___ TELESCOPE ___
+ 8.00m diameter with a 30.00% central obstruction with 45.74m^2 of light collecting area;
+ the field-of-view is 2.50arcmin; the pupil is sampled with 60X60 pixels
+----------------------------------------------------
+</pre><h2>WAVEFRONT SENSOR<a name="6"></a></h2><pre class="codeinput"><span class="comment">%wfs = shackHartmann(nL,nPx*nL,0.5); %0.97</span>
+wfs = pyramid(nL,nPx*nL,<span class="string">'modulation'</span>,6);
+
+<span class="comment">% wfs INIT</span>
+ngs = ngs.*tel*wfs;
+wfs.INIT
++wfs;
+figure
+imagesc(wfs.camera,<span class="string">'parent'</span>,subplot(3,2,[1,4]))
+slopesDisplay(wfs,<span class="string">'parent'</span>,subplot(3,2,[5,6]))
+
+<span class="comment">% The next 2 commands allow the displays of the frame and of the slopes to</span>
+<span class="comment">% be updated when a new frame and new slopes are computed</span>
+wfs.camera.frameListener.Enabled = true;
+wfs.slopesListener.Enabled = true;
+</pre><pre class="codeoutput"> @(detector)&gt; Created!
+ @(pyramid)&gt; Created!
+ @(source)&gt; Computing the objective wavefront transmitance ...
+ @(source)&gt; Created!
+___ SOURCE ___
+ Obj   zen[arcsec] azim[deg]  height[m]  lambda[micron] magnitude
+  1      0.00        0.00         Inf     0.640           0.00
+----------------------------------------------------
+ @(telescope)&gt; Created!
+___ TELESCOPE ___
+ 1.00m diameter full aperture with  0.79m^2 of light collecting area;
+ the pupil is sampled with 60X60 pixels
+----------------------------------------------------
+ @(zernike polynomials)&gt; Created!
+___ ZERNIKE POLYNOMIALS ___
+ . mode: 3 
+----------------------------------------------------
+ @(source)&gt; Computing the objective wavefront transmitance ...
+ @(source)&gt; Terminated!
+ @(telescope)&gt; Terminated!
+ @(zernike polynomials)&gt; Terminated!
+</pre><img vspace="5" hspace="5" src="run_CL_HSCAO_PYR_01.png" alt=""> <h2>DEFORMABLE MIRROR<a name="7"></a></h2><pre class="codeinput">couplingCoeff = 0.4;
+
+<span class="comment">% CASE 1: Fried topology (Certesian regular grid)</span>
+bifa = influenceFunction(<span class="string">'monotonic'</span>,couplingCoeff);
+
+dm = deformableMirror(nL+1,<span class="string">'modes'</span>,bifa,<span class="keyword">...</span>
+    <span class="string">'resolution'</span>,tel.resolution,<span class="keyword">...</span>
+    <span class="string">'validActuator'</span>,wfs.validActuator);
+
+<span class="comment">% CASE 2: M4 actuator locations</span>
+<span class="comment">% bifM4 = influenceFunction('monotonic',couplingCoeff);</span>
+<span class="comment">% m4 = load('../Coord_RepHexa');</span>
+<span class="comment">% pitch = 31.5e-3*2;</span>
+<span class="comment">% bifM4.actuatorCoord =  (m4.Centres_Act(:,1) + 1j*m4.Centres_Act(:,2))/pitch;</span>
+<span class="comment">% dm = deformableMirror(m4.nb_act,'modes',bifM4,'resolution',tel.resolution,...</span>
+<span class="comment">%     'validActuator',true(1,m4.nb_act));</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+<span class="comment">% figure,show(bifM4,'parent',subplot(1,2,1))</span>
+<span class="comment">% axis square</span>
+<span class="comment">% title('Monototic influence function')% The markers in the figures correspond to, from left to right, the points $P_k$ from $k=0$ to 6.</span>
+<span class="comment">%</span>
+<span class="comment">% subplot(1,2,2)</span>
+<span class="comment">% scatter(m4.Centres_Act(:,1)/pitch, m4.Centres_Act(:,2)/pitch)</span>
+<span class="comment">% title('M4 actuator locations')</span>
+<span class="comment">% axis tight square</span>
+<span class="comment">% box on</span>
+</pre><pre class="codeoutput"> @(bezier influence fun)&gt; Created!
+ @(influenceFunction)&gt; Computing the 2D DM zonal modes... ( 101,  101
+ @(deformable mirror)&gt; Created!
+___ DEFORMABLE MIRROR ___
+ 11X11 actuators deformable mirror: 
+  . 101 controlled actuators
+----------------------------------------------------
+___ BEZIER INFLUENCE FUN ___
+  . mechanical coupling: 0.4
+----------------------------------------------------
+</pre><h2>INTERACTION MATRIX<a name="8"></a></h2><p>Switch off the display automatic update</p><pre class="codeinput">wfs.camera.frameListener.Enabled = false;
+wfs.slopesListener.Enabled = false;
+
+<span class="comment">% Setup the optical path before the DM/WFS subsystem</span>
+ngs = ngs.*tel;
+<span class="comment">%calibDm = calibration(dm,wfs,ngs,ngs.wavelength/40,nL+1,'cond',1e2);</span>
+calibDm =  calibration(dm,wfs,ngs,ngs.wavelength/40);
+</pre><pre class="codeoutput">__ Poke Matrix Stats ___
+ . computing time: 17.09s
+ . size: 160x101
+ . non zeros values: 16160 i.e. 100.00%
+ . min. and max. values: [ 1.79,-1.24]
+ . mean and median of absolute values: [ 0.09, 0.00]
+________________________
+ @(calibration vault)&gt; Created!
+ @(calibration vault)&gt; Computing the SVD of the calibration matrix!
+ @(calibration vault)&gt; Condition number 213.795
+</pre><img vspace="5" hspace="5" src="run_CL_HSCAO_PYR_02.png" alt=""> <pre class="codeinput">calibDm.nThresholded = 5;
+</pre><pre class="codeoutput"> @(calibration vault)&gt; Updating the command matrix!
+ @(calibration vault)&gt; Condition number 29.2508
+</pre><img vspace="5" hspace="5" src="run_CL_HSCAO_PYR_03.png" alt=""> <h2>CLOSED-LOOP NGS AO SYSTEM<a name="10"></a></h2><h2>GENERATE ATMOSPHERE<a name="11"></a></h2><pre class="codeinput">tel = tel + atm;
+figure
+imagesc(tel)
+ngs = ngs.*tel*wfs;
+</pre><pre class="codeoutput"> @(telescope)&gt; Initializing phase screens making parameters:
+   Layer 1:
+            -&gt; Computing initial phase screen (D=8.00m,n=60px) ...  Done 
+            -&gt; # of elements for the outer maks: 244 and for the inner mask 464
+            -&gt; Computing matrix A and B for layer 1: ZZt , ZXt , XXt ...  Done 
+   Layer 2:
+            -&gt; Computing initial phase screen (D=10.91m,n=81px) ...  Done 
+            -&gt; # of elements for the outer maks: 328 and for the inner mask 632
+            -&gt; Computing matrix A and B for layer 2: ZZt , ZXt , XXt ...  Done 
+   Layer 3:
+            -&gt; Computing initial phase screen (D=15.27m,n=114px) ...  Done 
+            -&gt; # of elements for the outer maks: 460 and for the inner mask 896
+            -&gt; Computing matrix A and B for layer 3: ZZt , ZXt , XXt ...  Done 
+</pre><img vspace="5" hspace="5" src="run_CL_HSCAO_PYR_04.png" alt=""> <h2>SCIENCE CAMERA<a name="12"></a></h2><pre class="codeinput">science = source(<span class="string">'wavelength'</span>,photometry.K);
+cam = imager();
+<span class="comment">%</span>
+tel = tel - atm;
+science = science.*tel*cam;
+figure(31416)
+imagesc(cam,<span class="string">'parent'</span>,subplot(2,1,1))
+<span class="comment">%cam.frameListener.Enabled = true;</span>
+<span class="comment">%</span>
+cam.referenceFrame = cam.frame;
++science;
+fprintf(<span class="string">'Strehl ratio: %4.1f\n'</span>,cam.strehl)
+<span class="comment">%</span>
+tel = tel + atm;
++science;
+fprintf(<span class="string">'Strehl ratio: %4.1f\n'</span>,cam.strehl)
+</pre><pre class="codeoutput"> @(source)&gt; Created!
+___ SOURCE ___
+ Obj   zen[arcsec] azim[deg]  height[m]  lambda[micron] magnitude
+  1      0.00        0.00         Inf     2.179           0.00
+----------------------------------------------------
+ @(detector)&gt; Created!
+ @(lenslet array)&gt; Created!
+ @(source)&gt; Computing the objective wavefront transmitance ...
+ @(lensletArray)&gt; Set phasor (shift the intensity of half a pixel
+ for even intensity sampling)
+ @(source)&gt; Created!
+___ SOURCE ___
+ Obj   zen[arcsec] azim[deg]  height[m]  lambda[micron] magnitude
+  1      0.00        0.00         Inf     0.550           0.00
+----------------------------------------------------
+ @(lensletArray)&gt; Set phasor (shift the intensity of half a pixel
+ for even intensity sampling)
+ @(source)&gt; Terminated!
+Strehl ratio:  1.0
+ @(telescope)&gt; Initializing phase screens making parameters:
+ @(lensletArray)&gt; Set phasor (shift the intensity of half a pixel
+ for even intensity sampling)
+ @(source)&gt; Created!
+___ SOURCE ___
+ Obj   zen[arcsec] azim[deg]  height[m]  lambda[micron] magnitude
+  1      0.00        0.00         Inf     0.550           0.00
+----------------------------------------------------
+ @(lensletArray)&gt; Set phasor (shift the intensity of half a pixel
+ for even intensity sampling)
+ @(source)&gt; Terminated!
+Strehl ratio:  0.2
+</pre><img vspace="5" hspace="5" src="run_CL_HSCAO_PYR_05.png" alt=""> <h2>STATIC AND QUASI STATIC ABERRATIONS<a name="13"></a></h2><pre class="codeinput"><span class="comment">%StaticWaveNGS = {tel.pupil;JEFF_HSFOptim*ngs.waveNumber*0}; % l'amplitude complexe {amplitude;phase}</span>
+<span class="comment">%StaticWaveSCI = {tel.pupil;JEFF_HSFOptim*science.waveNumber*0}; % l'amplitude complexe {amplitude;phase}</span>
+<span class="comment">% expected loss of performance from static aberration if dm cannot fit it</span>
+<span class="comment">%exp(-var(StaticWaveSCI{2}(tel.pupilLogical)))</span>
+</pre><h2>SOURCE OBJECTS<a name="14"></a></h2><pre class="codeinput">tel = tel + atm;
+dm.coefs = zeros(dm.nValidActuator,1);
+
+ngs = source(<span class="string">'zenith'</span>,zeros(1,1),<span class="string">'azimuth'</span>,zeros(1,1),<span class="string">'magnitude'</span>,10,<span class="string">'wavelength'</span>,photometry.R);
+<span class="comment">%ngsCombo = ngsCombo.*tel*StaticWaveNGS*dm*wfs;</span>
+ngs = ngs.*tel*dm*wfs;
+s = source(<span class="string">'zenith'</span>,zeros(1,1),<span class="string">'azimuth'</span>,zeros(1,1),<span class="string">'wavelength'</span>,photometry.K);
+<span class="comment">%scienceCombo = scienceCombo.*tel*StaticWaveSCI*dm*cam;</span>
+science = science.*tel*dm*cam;
+</pre><pre class="codeoutput"> @(telescope)&gt; Initializing phase screens making parameters:
+ @(source)&gt; Created!
+___ SOURCE ___
+ Obj   zen[arcsec] azim[deg]  height[m]  lambda[micron] magnitude
+  1      0.00        0.00         Inf     0.640          10.00
+----------------------------------------------------
+ @(source)&gt; Terminated!
+ @(source)&gt; Computing the objective wavefront transmitance ...
+ @(source)&gt; Created!
+___ SOURCE ___
+ Obj   zen[arcsec] azim[deg]  height[m]  lambda[micron] magnitude
+  1      0.00        0.00         Inf     2.179           0.00
+----------------------------------------------------
+ @(lensletArray)&gt; Set phasor (shift the intensity of half a pixel
+ for even intensity sampling)
+ @(source)&gt; Created!
+___ SOURCE ___
+ Obj   zen[arcsec] azim[deg]  height[m]  lambda[micron] magnitude
+  1      0.00        0.00         Inf     0.550           0.00
+----------------------------------------------------
+ @(lensletArray)&gt; Set phasor (shift the intensity of half a pixel
+ for even intensity sampling)
+ @(source)&gt; Terminated!
+</pre><h2>%% LOOP INIT<a name="15"></a></h2><pre class="codeinput">flush(cam)
+cam.frame = cam.frame*0;
+cam.clockRate    = 1;
+exposureTime     = 100;
+cam.exposureTime = exposureTime;
+startDelay       = 20;
+figure(31416)
+imagesc(cam,<span class="string">'parent'</span>,subplot(2,1,1))
+<span class="comment">% cam.frameListener.Enabled = true;</span>
+subplot(2,1,2)
+h = imagesc(catMeanRmPhase(science));
+axis <span class="string">xy</span> <span class="string">equal</span> <span class="string">tight</span>
+colorbar
+</pre><pre class="codeoutput"> @(source)&gt; Created!
+___ SOURCE ___
+ Obj   zen[arcsec] azim[deg]  height[m]  lambda[micron] magnitude
+  1      0.00        0.00         Inf     0.550           0.00
+----------------------------------------------------
+ @(source)&gt; Terminated!
+</pre><img vspace="5" hspace="5" src="run_CL_HSCAO_PYR_06.png" alt=""> <pre class="codeinput">gain_cl  = 0.5;
+
+dm.coefs = zeros(dm.nValidActuator,1);
+flush(cam)
+set(science,<span class="string">'logging'</span>,true)
+set(science,<span class="string">'phaseVar'</span>,[])
+cam.startDelay   = startDelay;
+cam.frameListener.Enabled = true;
+
+wfs.camera.photonNoise = true;
+wfs.camera.readOutNoise = 1;
+wfs.framePixelThreshold = wfs.camera.readOutNoise;
+</pre><pre class="codeoutput"> @(source)&gt; Created!
+___ SOURCE ___
+ Obj   zen[arcsec] azim[deg]  height[m]  lambda[micron] magnitude
+  1      0.00        0.00         Inf     0.550           0.00
+----------------------------------------------------
+ @(source)&gt; Terminated!
+</pre><h2>CLOSED LOOP ITERATION<a name="17"></a></h2><p>The loop is closed for one full exposure of the science camera.</p><pre class="codeinput">nIteration = startDelay + exposureTime;
+wfsSlopesStack = zeros(wfs.nSlope,1);
+<span class="keyword">for</span> k=1:nIteration
+    <span class="comment">% Objects update</span>
+    +tel;
+    +ngs;
+    +science;
+    <span class="comment">% Closed-loop controller</span>
+    dm.coefs(:,1) = dm.coefs(:,1) - gain_cl*calibDm.M*wfsSlopesStack(:,1);
+
+    <span class="comment">% Display</span>
+     set(h,<span class="string">'Cdata'</span>,catMeanRmPhase(science))
+     drawnow
+
+     wfsSlopesStack = wfs.slopes;
+
+     <span class="comment">% Variance of the residual wavefront</span>
+     residue(k) = var(ngs);
+<span class="keyword">end</span>
+imagesc(cam)
+set(h,<span class="string">'Cdata'</span>,catMeanRmPhase(science))
+</pre><pre class="codeoutput"> @(lensletArray)&gt; Set phasor (shift the intensity of half a pixel
+ for even intensity sampling)
+ @(source)&gt; Created!
+___ SOURCE ___
+ Obj   zen[arcsec] azim[deg]  height[m]  lambda[micron] magnitude
+  1      0.00        0.00         Inf     0.550           0.00
+----------------------------------------------------
+ @(lensletArray)&gt; Set phasor (shift the intensity of half a pixel
+ for even intensity sampling)
+ @(source)&gt; Terminated!
+</pre><img vspace="5" hspace="5" src="run_CL_HSCAO_PYR_07.png" alt=""> <h2>PERFORMANCE ANALYSIS FROM LOOP TELEMETRY<a name="18"></a></h2><pre class="codeinput">var_wfe_lsq = reshape(science(1).phaseVar(1:nIteration*2),2,[])';
+wfe_lsq = sqrt(var_wfe_lsq)/science(1).waveNumber*1e6;
+atm_wfe_rms = sqrt(zernikeStats.residualVariance(1,atm,tel))/ngs.waveNumber*1e6;
+marechalStrehl_lsq = 1e2*exp(-mean(var_wfe_lsq(startDelay:end,2)));
+psfStrehl = 1e2*cam.strehl
+text(50,60,[<span class="string">'PSF Strehl:'</span> num2str(psfStrehl) <span class="string">'%'</span>])
+</pre><pre class="codeoutput"> @(zernike polynomials)&gt; Created!
+___ ZERNIKE POLYNOMIALS ___
+ . mode: 1 
+----------------------------------------------------
+ @(source)&gt; Created!
+___ SOURCE ___
+ Obj   zen[arcsec] azim[deg]  height[m]  lambda[micron] magnitude
+  1      0.00        0.00         Inf     0.550           0.00
+----------------------------------------------------
+ @(source)&gt; Terminated!
+ @(zernike polynomials)&gt; Terminated!
+
+psfStrehl =
+
+   65.4856
+
+</pre><img vspace="5" hspace="5" src="run_CL_HSCAO_PYR_08.png" alt=""> <h2>THEORETICAL PERFORMANCE ANALYSIS - CASE OF THE SINGLE INTEGRATOR LOOP WITH GAIN<a name="19"></a></h2><pre class="codeinput">var_fit = 0.23*(d/atm.r0)^(5/3)*(atm.wavelength/science(1).wavelength)^2;
+var_alias = 0.07*(d/atm.r0)^(5/3)*(atm.wavelength/science(1).wavelength)^2;
+var_tempo = phaseStats.closedLoopVariance(atm, tel.samplingTime,0.001,gain_cl)*(atm.wavelength/science(1).wavelength)^2;
+marechalStrehl_lsq_theoretical = 100*exp(-var_fit-var_alias-var_tempo)
+
+figure(31416)
+text(50,170,[<span class="string">'Marechal approx:'</span> num2str(100*marechalStrehl_lsq_theoretical) <span class="string">'%'</span>])
+
+<span class="comment">% Phase variance to micron rms converter</span>
+rmsMicron = @(x) 1e6*sqrt(x).*ngs.wavelength/2/pi;
+mean(rmsMicron(residue(startDelay:end)))
+</pre><pre class="codeoutput">
+marechalStrehl_lsq_theoretical =
+
+   68.4755
+
+
+ans =
+
+    0.2298
+
+</pre><img vspace="5" hspace="5" src="run_CL_HSCAO_PYR_09.png" alt=""> <img vspace="5" hspace="5" src="run_CL_HSCAO_PYR_10.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% INTRODUCTION
+%{
+This is the template file for the Harmoni-SCAO E2E simulation
+%}
+
+clear all
+close all
+
+%% LOCAL DEFINITIONS
+%load('/data/HARMONI/SCAO/TESTS/ESO_PupilM1_740.mat');
+%pupil = Masq_M1; clear Masq_M1;
+
+%load('/data/HARMONI/SCAO/TESTS/MAT_FI_M4_740.mat');
+%load('/data/HARMONI/SCAO/SIMUL_MORGAN/MIROIR_M4/MAT_FI_M4_740.mat')
+% static maps
+%load('/data/HARMONI/SCAO/TESTS/JEFF_HSFreq_740.mat');
+
+
+%% SOURCE
+ngs = source('wavelength',photometry.R); % R-band 
+
+%% ATMOSPHERE
+
+r0 = 0.1587;            % coherence lenght in meters at 0.5microns
+L0 = 30;                % Outer scale in meters
+
+% Mono-layer atmosphere
+atm = atmosphere(photometry.V0,r0,L0,...
+    'fractionnalR0',[1],'altitude',[0e3],...
+    'windSpeed',[12],'windDirection',[0]);
+
+% Multi-layer atmosphere
+atm = atmosphere(photometry.V0,r0,L0,...
+    'fractionnalR0',[0.5,0.3,0.2],'altitude',[0e3,4e3,10e3],...
+    'windSpeed',[5,10,20],'windDirection',[0,pi/4,pi]);
+
+
+
+
+% atm = atmosphere(photometry.V,0.15,30,...
+%     'altitude',[0,4,10]*1e3,...
+%     'fractionnalR0',[0.7,0.25,0.05],...
+%     'windSpeed',[5,10,20],...
+%     'windDirection',[0,pi/4,pi]);
+
+%% TELESCOPE
+nL   = 10;              % number of lenslets
+nPx  = 6;               % number of pixels per lenslet
+nRes = nL*nPx;          % resolution on the pupil plane (no of pixels)
+D    = 8;              % telescope primary mirror diameter
+d    = D/nL;            % lenslet pitch
+samplingFreq = 100;     % WFS sampling time
+obstructionRatio= 0.3;   % central obscuration ratio
+fieldOfViewInArcsec = 150; %fieldOfViewInArcsec
+
+tel = telescope(D,'resolution',nRes,...
+    'obstructionRatio',obstructionRatio,'fieldOfViewInArcsec',fieldOfViewInArcsec,'samplingTime',1/samplingFreq);
+
+%% WAVEFRONT SENSOR
+%wfs = shackHartmann(nL,nPx*nL,0.5); %0.97
+wfs = pyramid(nL,nPx*nL,'modulation',6);
+
+% wfs INIT
+ngs = ngs.*tel*wfs;
+wfs.INIT
++wfs;
+figure
+imagesc(wfs.camera,'parent',subplot(3,2,[1,4]))
+slopesDisplay(wfs,'parent',subplot(3,2,[5,6]))
+
+% The next 2 commands allow the displays of the frame and of the slopes to
+% be updated when a new frame and new slopes are computed
+wfs.camera.frameListener.Enabled = true;
+wfs.slopesListener.Enabled = true;
+
+
+%% DEFORMABLE MIRROR
+
+couplingCoeff = 0.4;
+
+% CASE 1: Fried topology (Certesian regular grid)
+bifa = influenceFunction('monotonic',couplingCoeff);
+
+dm = deformableMirror(nL+1,'modes',bifa,...
+    'resolution',tel.resolution,...
+    'validActuator',wfs.validActuator);
+
+% CASE 2: M4 actuator locations
+% bifM4 = influenceFunction('monotonic',couplingCoeff); 
+% m4 = load('../Coord_RepHexa');
+% pitch = 31.5e-3*2;
+% bifM4.actuatorCoord =  (m4.Centres_Act(:,1) + 1j*m4.Centres_Act(:,2))/pitch;
+% dm = deformableMirror(m4.nb_act,'modes',bifM4,'resolution',tel.resolution,...
+%     'validActuator',true(1,m4.nb_act)); 
+% 
+% 
+% figure,show(bifM4,'parent',subplot(1,2,1))
+% axis square
+% title('Monototic influence function')% The markers in the figures correspond to, from left to right, the points $P_k$ from $k=0$ to 6.
+% 
+% subplot(1,2,2)
+% scatter(m4.Centres_Act(:,1)/pitch, m4.Centres_Act(:,2)/pitch)
+% title('M4 actuator locations')
+% axis tight square
+% box on
+
+
+%% INTERACTION MATRIX
+% Switch off the display automatic update
+wfs.camera.frameListener.Enabled = false;
+wfs.slopesListener.Enabled = false;
+
+% Setup the optical path before the DM/WFS subsystem
+ngs = ngs.*tel;
+%calibDm = calibration(dm,wfs,ngs,ngs.wavelength/40,nL+1,'cond',1e2);
+calibDm =  calibration(dm,wfs,ngs,ngs.wavelength/40);
+%%
+calibDm.nThresholded = 5;
+
+%% CLOSED-LOOP NGS AO SYSTEM
+
+%% GENERATE ATMOSPHERE
+tel = tel + atm;
+figure
+imagesc(tel)
+ngs = ngs.*tel*wfs;
+
+
+%% SCIENCE CAMERA
+science = source('wavelength',photometry.K);
+cam = imager();
+%
+tel = tel - atm;
+science = science.*tel*cam;
+figure(31416)
+imagesc(cam,'parent',subplot(2,1,1))
+%cam.frameListener.Enabled = true;
+%
+cam.referenceFrame = cam.frame;
++science;
+fprintf('Strehl ratio: %4.1f\n',cam.strehl)
+%
+tel = tel + atm;
++science;
+fprintf('Strehl ratio: %4.1f\n',cam.strehl)
+
+%% STATIC AND QUASI STATIC ABERRATIONS
+
+%StaticWaveNGS = {tel.pupil;JEFF_HSFOptim*ngs.waveNumber*0}; % l'amplitude complexe {amplitude;phase} 
+%StaticWaveSCI = {tel.pupil;JEFF_HSFOptim*science.waveNumber*0}; % l'amplitude complexe {amplitude;phase} 
+% expected loss of performance from static aberration if dm cannot fit it
+%exp(-var(StaticWaveSCI{2}(tel.pupilLogical)))
+
+%% SOURCE OBJECTS
+tel = tel + atm;
+dm.coefs = zeros(dm.nValidActuator,1);
+
+ngs = source('zenith',zeros(1,1),'azimuth',zeros(1,1),'magnitude',10,'wavelength',photometry.R);
+%ngsCombo = ngsCombo.*tel*StaticWaveNGS*dm*wfs;
+ngs = ngs.*tel*dm*wfs;
+s = source('zenith',zeros(1,1),'azimuth',zeros(1,1),'wavelength',photometry.K);
+%scienceCombo = scienceCombo.*tel*StaticWaveSCI*dm*cam;
+science = science.*tel*dm*cam;
+
+%% %% LOOP INIT
+
+flush(cam)
+cam.frame = cam.frame*0;
+cam.clockRate    = 1;
+exposureTime     = 100;
+cam.exposureTime = exposureTime;
+startDelay       = 20;
+figure(31416)
+imagesc(cam,'parent',subplot(2,1,1))
+% cam.frameListener.Enabled = true;
+subplot(2,1,2)
+h = imagesc(catMeanRmPhase(science));
+axis xy equal tight
+colorbar
+
+
+%%
+gain_cl  = 0.5;
+
+dm.coefs = zeros(dm.nValidActuator,1);
+flush(cam)
+set(science,'logging',true)
+set(science,'phaseVar',[])
+cam.startDelay   = startDelay;
+cam.frameListener.Enabled = true;
+
+wfs.camera.photonNoise = true;
+wfs.camera.readOutNoise = 1;
+wfs.framePixelThreshold = wfs.camera.readOutNoise;
+
+ %% CLOSED LOOP ITERATION
+% The loop is closed for one full exposure of the science camera.
+nIteration = startDelay + exposureTime;
+wfsSlopesStack = zeros(wfs.nSlope,1);
+for k=1:nIteration
+    % Objects update
+    +tel;
+    +ngs;
+    +science;
+    % Closed-loop controller
+    dm.coefs(:,1) = dm.coefs(:,1) - gain_cl*calibDm.M*wfsSlopesStack(:,1);    
+    
+    % Display
+     set(h,'Cdata',catMeanRmPhase(science))
+     drawnow
+     
+     wfsSlopesStack = wfs.slopes;
+     
+     % Variance of the residual wavefront
+     residue(k) = var(ngs);
+end
+imagesc(cam)
+set(h,'Cdata',catMeanRmPhase(science))
+%% PERFORMANCE ANALYSIS FROM LOOP TELEMETRY
+
+var_wfe_lsq = reshape(science(1).phaseVar(1:nIteration*2),2,[])';
+wfe_lsq = sqrt(var_wfe_lsq)/science(1).waveNumber*1e6;
+atm_wfe_rms = sqrt(zernikeStats.residualVariance(1,atm,tel))/ngs.waveNumber*1e6;
+marechalStrehl_lsq = 1e2*exp(-mean(var_wfe_lsq(startDelay:end,2)));
+psfStrehl = 1e2*cam.strehl
+text(50,60,['PSF Strehl:' num2str(psfStrehl) '%'])
+
+%% THEORETICAL PERFORMANCE ANALYSIS - CASE OF THE SINGLE INTEGRATOR LOOP WITH GAIN
+var_fit = 0.23*(d/atm.r0)^(5/3)*(atm.wavelength/science(1).wavelength)^2;
+var_alias = 0.07*(d/atm.r0)^(5/3)*(atm.wavelength/science(1).wavelength)^2;
+var_tempo = phaseStats.closedLoopVariance(atm, tel.samplingTime,0.001,gain_cl)*(atm.wavelength/science(1).wavelength)^2;
+marechalStrehl_lsq_theoretical = 100*exp(-var_fit-var_alias-var_tempo)
+
+figure(31416)
+text(50,170,['Marechal approx:' num2str(100*marechalStrehl_lsq_theoretical) '%'])
+
+% Phase variance to micron rms converter 
+rmsMicron = @(x) 1e6*sqrt(x).*ngs.wavelength/2/pi;
+mean(rmsMicron(residue(startDelay:end)))
+
+
+
+##### SOURCE END #####
+--></body></html>
