@@ -70,7 +70,7 @@ ngs = source('wavelength',photometry.J);
 %
 % * the minimum light ratio that is the ratio between a partially
 % illuminated subaperture and a fully illuminated aperture
-nLenslet = 20;
+nLenslet = 10;
 %wfs = shackHartmann(nLenslet,nPx,0.75);
 wfs = pyramid(nLenslet,nPx,'modulation',6);
 %%
