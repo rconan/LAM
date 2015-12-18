@@ -431,7 +431,6 @@ classdef telescopeAbstract < handle
                     obj.resolution = length(srcs(1).amplitude);
                 end
             end
-            
             nSrc = numel(srcs);
             for kSrc=1:nSrc % Browse the srcs array
                 src = srcs(kSrc);
@@ -440,7 +439,7 @@ classdef telescopeAbstract < handle
                 if isempty(src.nPhoton) || (isempty(obj.samplingTime) || isinf(obj.samplingTime))
                     src.amplitude = obj.pupil;
                 else
-                    src.amplitude = obj.pupil.*sqrt(obj.samplingTime*src.nPhoton.*obj.area/sum(obj.pupil(:))); 
+                   src.amplitude = obj.pupil.*sqrt(obj.samplingTime*src.nPhoton.*obj.area/sum(obj.pupil(:)));
                 end
                 out = 0;
                 if ~isempty(obj.atm) % Set phase if an atmosphere is defined
@@ -491,7 +490,7 @@ classdef telescopeAbstract < handle
                     out = (obj.phaseScreenWavelength/src.wavelength)*out; % Scale the phase according to the src wavelength
                 end
                 src.phase = fresnelPropagation(src,obj) + out/sqrt( cos( obj.elevation ) );
-                 if isfinite(src.height);src.amplitude = 1./src.height;end   %% This causes an error in LGS tomogtaphy. See Issue #15
+                if isfinite(src.height);src.amplitude = 1./src.height;end
                 src.timeStamp = src.timeStamp + obj.samplingTime;
             end
             
@@ -730,10 +729,12 @@ classdef telescopeAbstract < handle
                     obj.atm.layer(1).nPixel),...
                     'HorizontalAlignment','Center',...
                     'VerticalAlignment','Bottom')
-                v = obj.atm.layer(1).windSpeed*n1/obj.atm.layer(1).D;
-                quiver((n1+1)/2,(n1+1)/2,...
-                    v.*cos(obj.atm.layer(1).windDirection),...
-                    v.*sin(obj.atm.layer(1).windDirection),'k')
+                if ~isempty(obj.atm.layer(1).windSpeed)
+                    v = obj.atm.layer(1).windSpeed*n1/obj.atm.layer(1).D;
+                    quiver((n1+1)/2,(n1+1)/2,...
+                        v.*cos(obj.atm.layer(1).windDirection),...
+                        v.*sin(obj.atm.layer(1).windDirection),'k')
+                end
                 n = n1;
                 n = n1;
                 offset = 0;
@@ -760,9 +761,11 @@ classdef telescopeAbstract < handle
                         plot(xP+m1+m/2,yP+(n1+1)/2,'k:')
                     end
                     v = obj.atm.layer(kLayer).windSpeed*n/obj.atm.layer(kLayer).D;
-                    quiver(m1+m/2,(n1+1)/2,...
-                        v.*cos(obj.atm.layer(kLayer).windDirection),...
-                        v.*sin(obj.atm.layer(kLayer).windDirection),'k')
+                    if ~isempty(obj.atm.layer(kLayer).windSpeed)
+                        quiver(m1+m/2,(n1+1)/2,...
+                            v.*cos(obj.atm.layer(kLayer).windDirection),...
+                            v.*sin(obj.atm.layer(kLayer).windDirection),'k')
+                    end
                     text(m1+m/2,(n1+1+m)/2,...
                         sprintf('%.1fkm: %.1f%%\n%.2fm - %dpx',...
                         obj.atm.layer(kLayer).altitude*1e-3,...

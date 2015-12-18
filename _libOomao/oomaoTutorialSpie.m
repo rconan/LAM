@@ -14,8 +14,7 @@
 % The proper syntax of the constructor can be discovered by invoking
 % \matcall{help class\_name} at the \matlab prompt. A more complete
 % description of a class properties and methods is given by \matcall{doc
-% class\_name}. 
-
+% class\_name}.
 % \newline
 % The constructor method will set only a limited number of properties,
 % other properties will be set to a default value. All the properties can
@@ -132,15 +131,10 @@ atm = atmosphere(photometry.V,20e-2,30,...
 % telescope diameter \texttt{D} in meter and the sampling frequency \texttt{samplingFreq} in
 % Hz.
 % </latex>
-<<<<<<< HEAD
-nL   = 20;
-nPx  = 10;
-=======
 nL   = 60;
-nPx  = 6;
->>>>>>> 0b283f6cff8557ab9894757326120a366200e290
+nPx  = 10;
 nRes = nL*nPx;
-D    = 8;
+D    = 25;
 d    = D/nL; % lenslet pitch
 samplingFreq = 500;
 %%
@@ -348,7 +342,7 @@ ngs = ngs.*tel;
 % it can be done in 1 step at the expense of requiring a lot of memory.
 % Here the process is divided in as many steps as actuators accross the pupil.
 % </latex>
-calibDm = calibration(dm,wfs,ngs,ngs.wavelength/8,nL+1,'cond',1e2);
+calibDm = calibration(dm,wfs,ngs,ngs.wavelength,nL+1,'cond',1e2);
 %%
 % <latex>
 % At the end of the calibration process, the interaction matrix is saved
@@ -418,17 +412,18 @@ phase = ngs.meanRmOpd;
 % method using the inverse of the sparse gradient matrix computed with
 % the method \oom{shackHartmann}{sparseGradientMatrix}.
 % </latex>
-phaseEst = tools.meanSub( wfs.finiteDifferenceWavefront*ngs.wavelength ,...
-    wfs.validActuator);
+phaseEst = zeros( dm.nActuator );
+phaseEst(wfs.validActuator) = wfs.finiteDifferenceWavefront;
 %%
 % <latex>
 % The source is propagated through the finite difference phase screen and the
 % residual wavefront and residual wavefront rms are retrieved from the
 % \matcall{ngs} \oop{source}{meanRmOpd} and \oop{source}{opdRms} properties. 
 % </latex>
-ngs = ngs.*telLowRes*{wfs.validActuator,-2*pi*wfs.finiteDifferenceWavefront};
+ngs = ngs.*telLowRes*{wfs.validActuator,-2*pi*phaseEst};
 phaseEstRes = ngs.meanRmOpd;
 phaseEstResRms = ngs.opdRms;
+phaseEst = tools.meanSub( phaseEst*ngs.wavelength , wfs.validActuator);
 %%
 % <latex>
 % The second method uses the interaction matrix to compute DM actuators
@@ -520,7 +515,7 @@ lgs_ps_eResRms = ngs.opdRms*1e9;
 % A 3 LGS asterism evenly located on a 20arcsec diameter ring and the corresponding \oo{slopesLinearMMSE}
 % object are created.
 % </latex>
-lgsAst = source('asterism',{[6,arcsec(10),0]},'height',90e3);
+lgsAst = source('asterism',{[3,arcsec(10),0]},'height',90e3);
 % figure, imagesc(tel, [ngs,lgsAst])
 lgsAst_slmmse = slopesLinearMMSE(wfs,tel,atm,lgsAst,'mmseStar',ngs,'NF',1024);
 %%
@@ -574,7 +569,7 @@ drawnow
 % Then, the science imaging camera is created with the class \oo{imager}.
 % </latex>
 science = source('wavelength',photometry.J);
-cam = imager();
+cam = imager(tel);
 %%
 % <latex>
 % The \oo{atmosphere} object is detached from the telescope and the
@@ -692,7 +687,7 @@ set(scienceCombo,'phaseVar',[])
 slmmse.wavefrontSize = [dm.nValidActuator,1];
 slmmse.warmStart = true;
 cam.startDelay   = startDelay;
-cam.frameListener.Enabled = true;
+cam.frameListener.Enabled = false;
 % set(ngsCombo,'magnitude',8)
 % wfs.camera.photonNoise = true;
 % wfs.camera.readOutNoise = 2;
@@ -713,8 +708,8 @@ for k=1:nIteration
     dm.coefs(:,2) = (1-gain_pol)*dm.coefs(:,2) + ...
         gain_pol*iF*( slmmse*( wfs.slopes(:,2) - calibDm.D*dm.coefs(:,2) ) );
     % Display
-     set(h,'Cdata',catMeanRmPhase(scienceCombo))
-     drawnow
+%     set(h,'Cdata',catMeanRmPhase(scienceCombo))
+%     drawnow
 end
 imagesc(cam)
 set(h,'Cdata',catMeanRmPhase(scienceCombo))

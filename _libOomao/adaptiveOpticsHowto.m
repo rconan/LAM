@@ -26,7 +26,7 @@ atm = atmosphere(photometry.V,0.15,30,...
     'altitude',[0,4,10]*1e3,...
     'fractionnalR0',[0.7,0.25,0.05],...
     'windSpeed',[5,10,20],...
-    'windDirection',[0,pi/3.,pi]);
+    'windDirection',[0,pi/4,pi]);
 
 %% Definition of the telescope
 % The telescope class constructor has 1 required input:
@@ -42,8 +42,8 @@ atm = atmosphere(photometry.V,0.15,30,...
 % * the field of view either in arcminute or arcsecond
 % * the pupil sampling or resolution in pixels
 % * the atmopheric layer motion sampling time [s]
-nPx = 3*60;
-tel = telescope(8.0,...
+nPx = 60;
+tel = telescope(3.6,...
     'fieldOfViewInArcMin',2.5,...
     'resolution',nPx,...
     'samplingTime',1/100);
@@ -57,7 +57,7 @@ tel = telescope(8.0,...
 % * the magnitude
 %
 % In the following, an on-axis natural guide star in V band is defined.
-ngs = source('wavelength',photometry.R);
+ngs = source('wavelength',photometry.J);
 
 %% Definition of the wavefront sensor
 % Up to now, only the Shack--Hartmann WFS has been implemented in OOMAO.
@@ -70,9 +70,8 @@ ngs = source('wavelength',photometry.R);
 %
 % * the minimum light ratio that is the ratio between a partially
 % illuminated subaperture and a fully illuminated aperture
-nLenslet = 20;
-%wfs = shackHartmann(nLenslet,nPx,0.75);
-wfs = pyramid(nLenslet,nPx,'modulation',6);
+nLenslet = 10;
+wfs = shackHartmann(nLenslet,nPx,0.75);
 %%
 % Propagation of the calibration source to the WFS through the telescope
 ngs = ngs.*tel*wfs;
@@ -134,7 +133,7 @@ dm = deformableMirror(nActuator,...
 
 %% Interaction matrix: DM/WFS calibration
 ngs=ngs.*tel;
-dmCalib = calibration(dm,wfs,ngs,ngs.wavelength/40);
+dmCalib = calibration(dm,wfs,ngs,ngs.wavelength/2);
 % The influence functions are normalized to 1, the actuator are then
 % controlled in stroke in meter, here we choose a half a wavelength stroke.
 % stroke = ngs.wavelength/2;
@@ -200,7 +199,7 @@ ngs=ngs*dm*wfs;
 %%
 % Display of turbulence and residual phase
 figure(11)
-h = imagesc([turbPhase dm.surface ngs.meanRmPhase]);
+h = imagesc([turbPhase,ngs.meanRmPhase]);
 axis equal tight
 colorbar
 snapnow
@@ -289,7 +288,7 @@ for kIteration=1:nIteration
     % wind vectors of the layers
     ngs=ngs.*+tel; 
     % Saving the turbulence aberrated phase
-    turbPhase = ngs.meanRmOpd;
+    turbPhase = ngs.meanRmPhase;
     % Variance of the atmospheric wavefront
     total(kIteration) = var(ngs);
     % Propagation to the WFS
@@ -301,7 +300,7 @@ for kIteration=1:nIteration
     % Integrating the DM coefficients
     dm.coefs = dm.coefs - loopGain*residualDmCoefs;
     % Display of turbulence and residual phase
-    set(h,'Cdata',[turbPhase,2*dm.surface.*tel.pupil,ngs.meanRmOpd])
+    set(h,'Cdata',[turbPhase,ngs.meanRmPhase])
     drawnow
 end
 %%
